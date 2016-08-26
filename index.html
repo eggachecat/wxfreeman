@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="wxfreeman">
+  <head>
+    <meta charset="UTF-8">
+    <title>wxfreeman</title>
+    
+    <link rel="stylesheet" href="./app/bower_components/normalize-css/normalize.css">
+    <link rel="stylesheet" href="./app/bower_components/angular-material/angular-material.css">
+    <link rel="stylesheet" herf="./app/bower_components/ionicons/css/ionicons.css">
+    <!-- some libs -->
+    <script type="text/javascript" src="./app/bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="./app/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script type="text/javascript" src="./app/bower_components/angular-aria/angular-aria.js"></script>
+    <script type="text/javascript" src="./app/bower_components/angular-animate/angular-animate.js"></script>
+    <script type="text/javascript" src="./app/bower_components/angular-material/angular-material.js"></script>
+    <!-- wxfreeman's client -->
+    <script type="text/javascript" src="./app/app.js"></script>
+    <script type="text/javascript" src="./app/controllers.js"></script>
+    <script type="text/javascript" src="./app/services.js"></script>
+    
+  </head>
+  <body>
+    <ui-view class="background"></ui-view>
+  </body>
+  <style type="text/css" >
+  .background , body, html{
+    background-color: #FAFAFA;
+    background-clip: padding-box;
+  }
+  </style>
+</html>

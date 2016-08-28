@@ -84,28 +84,7 @@ module.exports = {
 	getDeviceID: function() {
 	    return "e" + ("" + Math.random().toFixed(15)).substring(2, 17)
 	},
-
-	createMsgPostData: function(content, selfId, targetID){
-
-		var MsgId = (utilFactory.now() + Math.random().toFixed(3)).replace(".", "");
-
-
-		return {
-			"BaseRequest": {
-				"Uin": global.cookies["wxuin"],
-				"Sid": global.cookies["wxsid"],
-				"Skey": global.values["skey"],
-				"DeviceID": getDeviceID()
-			},
-			"Msg": {
-				"Type": 1,
-				"Content": content,
-				"FromUserName": selfId,
-				"ToUserName": targetID,
-				"LocalID": MsgId,
-				"ClientMsgId": MsgId
-			},
-			"Scene": 0
-		}
+	now: function(){
+		return +new Date;
 	}
 }

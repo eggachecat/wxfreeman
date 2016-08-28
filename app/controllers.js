@@ -1,8 +1,7 @@
 
-app.controller('SendMessageCtrl', ['$scope', '$timeout', 'AuthService', 'ContactService', function($scope, $timeout, AuthService, ContactService){
+app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', 'DataService', '$state', function($scope, $timeout, AuthService, WxService, DataService, $state){
 
 	$scope.qrcode = "";
-
 
 	AuthService
 		.getQrcode()
@@ -12,31 +11,54 @@ app.controller('SendMessageCtrl', ['$scope', '$timeout', 'AuthService', 'Contact
 	
 			return AuthService.checkLogin(uuid)
 		})
-		.then(function(data){
-				return ContactService.getContact()
+		.then(function(){ 
+				return WxService.getContact()
 		})
-		.then(function(data){
-			console.log(data)
+		.then(function(contactList){
+			DataService.set("contactList", contactList["MemberList"])
+			return WxService.iniWechat()
 		})
- 
-
-
-	$scope.welcome = "Hello world";
+		// .then(function(){
+		// 	return WxService.wxSync()
+		// })
+ 		.then(function(iniData){
+ 			console.log(iniData["User"])
+ 			DataService.set("user", iniData["User"])
+ 			$state.go("app.sendMessage")
+ 		})
 }])
 
-app.controller('LoginCtrl', ['$scope', '$state', function($scope, $state){
+app.controller('SendMessageCtrl', ['$scope', '$state', 'DataService', 'WxService', function($scope, $state, DataService, WxService){
 	
-	$scope.qrcode = "";
+	$scope.contactList = DataService.get("contactList");
+	$scope.user = DataService.get("user");
+	$scope.messages = DataService.get("messages");
+	console.log($scope.messages, $scope.messages)
 
-	AuthService.getQrcode().then(function(qrcode){
-		var uuid = qrcode["uuid"];
-		
-		$scope.qrcode = `http://login.weixin.qq.com/qrcode/${uuid}`
-		console.log($scope.qrcode)
-		AuthService.checkLogin(uuid).then(function(){
-			$state.go("'app.sendMessage");
-		});	
-	})
+	console.log($scope.contactList, $scope.user)
+	
+	$scope.goBack = function(){
+		$state.go("login")
+	}
+
+
+	$scope.sendAllMessage = function(){
+		angular.forEach($scope.contactList, function(contact){
+
+			var remarkName = contact["RemarkName"];
+			var msgObj = $scope.messages[remarkName]
+
+			if(msgObj){
+				console.log(msgObj, contact["UserName"])
+				var msg = msgObj["message"]
+				WxService
+				.sendMessage(msg, contact["UserName"])
+				.then(function(ret){
+					console.log(ret);
+				})
+			}
+		})
+	}
  
 }])
 

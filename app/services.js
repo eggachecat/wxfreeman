@@ -2,7 +2,8 @@
 
 
 var cookiesApi = require('./api/cookiesApi')
-var contactApi = require('./api/contactApi')
+var wxApi = require('./api/wxApi')
+var messageApi = require("./api/messageApi")
 
 app.service('ngNode', ['$q', function($q){
 	this.execute = function(asyncFn){
@@ -40,9 +41,35 @@ app.service('AuthService', ['ngNode', function(ngNode){
 
 }])
 
-app.service('ContactService', ['ngNode', function(ngNode){
+app.service('DataService', function(){
+	var data = {
+		"cookies": global.cookies,
+		"values": global.values,
+		"messages": global.messages
+	};
+	this.set = function(key, value){
+		data[key] = value;
+	}
+	this.get = function(key){
+		return data[key];
+	}
+})
+
+app.service('WxService', ['ngNode', function(ngNode){
 	this.getContact = function(){
 		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(contactApi.getContact, arrArgs);
+		return ngNode.execute(wxApi.getContact, arrArgs);
+	}
+	this.iniWechat = function(){
+		var arrArgs = Array.prototype.slice.call(arguments);
+		return ngNode.execute(wxApi.iniWechat, arrArgs);
+	}
+	this.wxSync = function(){
+		var arrArgs = Array.prototype.slice.call(arguments);
+		return ngNode.execute(wxApi.wxSync, arrArgs);
+	}
+	this.sendMessage = function(){
+		var arrArgs = Array.prototype.slice.call(arguments);
+		return ngNode.execute(messageApi.sendMessage, arrArgs);
 	}
 }])

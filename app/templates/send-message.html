@@ -9,23 +9,21 @@
 </md-toolbar>
  
 
+<button ng-click="goBack()">back</button>
+<button ng-click="sendAllMessage()">send</button>
 
-<!--  <md-content layout-padding="" >
-        <h1>Hello world</h1>
-
-         <md-button  class="md-raised md-primary">
-                     Send Messages
-        </md-button>
- </md-content>
- -->
 <md-content layout-padding="" >
   <img ng-src="{{qrcode}}" alt="">
+
+
+
   <md-list>
-    <md-list-item class="md-3-line" ng-repeat="item in messages">
-      <img ng-src="{{item.face}}?{{$index}}" class="md-avatar" alt="{{item.who}}">
+    <md-list-item class="md-3-line" ng-repeat="contact in contactList" ng-if="messages[contact['RemarkName']]">
+     <!--  <img ng-src="http://wx.qq.com{{contact.HeadImgUrl}}" class="md-avatar" alt="{{contact.NickName}}"> -->
       <div class="md-list-item-text">
-        <h4>{{item.who}}</h4>
-        <h3>{{item.what}}</h3>
+        <h4>{{contact.NickName}}</h4>
+        <!-- <h3>{{contact.Signature}}</h3> -->
+        <p>{{messages[contact['RemarkName']]["message"]}}</p>
       </div>
       <md-divider md-inset ng-if="!$last"></md-divider>
     </md-list-item>

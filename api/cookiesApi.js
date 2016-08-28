@@ -9,8 +9,17 @@ global.cookies = {
 }
 
 global.values = {}
-
 global.window = {}
+global.user = {}
+global.messages = {}
+
+// load messages.json
+function loadMessage(){
+	global.messages = JSON.parse(fs.readFileSync( `${__dirname}/assets/messages.json`, 'utf8'))
+	console.log(global.messages["yjsb"])
+}
+loadMessage();
+
 
 
 var LIB_PATH = `${__dirname}/libs`
@@ -47,6 +56,7 @@ function initCookies(){
 function getQrcode(callback) {
 
 	initCookies();
+	//loadMessage();
 	var redirect_uri = encodeURIComponent(_CONF.protocol + "//" + _CONF.host.wx + "/cgi-bin/mmwebwx-bin/webwxnewloginpage");
 	var headers = common.getHeaders("check-login");
 
@@ -113,31 +123,7 @@ function checkLogin(uuid, callback) {
 		}
 	})
 }
-
-// function wxSync(){
-
-// 	var headers = common.getHeaders("check-login")
-
-// 	var options = {
-// 		hostname: _CONF.host.login,
-// 		path: `/cgi-bin/mmwebwx-bin/login?loginicon=true&uuid=${uuid}&tip=0&r=${~new Date}`,
-// 		method: 'GET',
-// 		headers: headers
-// 	};
-
-
-// 	common.httpRequestData(options, function(status){
-// 		var statusCode = common.scriptParser(status)["code"];		
-// 		console.log(`statusCode is ${statusCode}`);	
-// 		switch(statusCode){
-// 			case 408:
-// 			case 400:
-// 			case 201: checkLogin(uuid);  break;
-// 			case 200: redirect(status, callback); break;
-// 		}
-// 	})
-// }
-
+ 
 
 
 
@@ -145,6 +131,9 @@ function checkLogin(uuid, callback) {
 
 exports.getQrcode = getQrcode;
 exports.checkLogin = checkLogin;
+
+
+
 
 
 

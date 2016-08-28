@@ -1,7 +1,8 @@
-[{
-   
-    "what": "Brunch this weekend?",
-    "who": "Min Li Chan",
-    "when": "3:08PM",
-    "notes": " I'll be in your neighborhood doing errands"
-}]
+{
+	"小鸡吧蛋": {
+		"message": "约翰 下午好!"
+	},
+	"yjsb": {
+		"message": "YJ 下午好!"
+	}
+}

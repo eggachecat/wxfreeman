@@ -12,20 +12,23 @@
 <button ng-click="goBack()">back</button>
 <button ng-click="sendAllMessage()">send</button>
 
-<md-content layout-padding="" >
-  <img ng-src="{{qrcode}}" alt="">
+<md-content>
 
 
 
   <md-list>
     <md-list-item class="md-3-line" ng-repeat="contact in contactList" ng-if="messages[contact['RemarkName']]">
-     <!--  <img ng-src="http://wx.qq.com{{contact.HeadImgUrl}}" class="md-avatar" alt="{{contact.NickName}}"> -->
       <div class="md-list-item-text">
         <h4>{{contact.NickName}}</h4>
-        <!-- <h3>{{contact.Signature}}</h3> -->
-        <p>{{messages[contact['RemarkName']]["message"]}}</p>
+        <h3>{{contact.RemarkName}}</h3>
+        <p>
+          <md-input-container md-no-float class="md-block">
+            <input ng-model="messages[contact['RemarkName']]['message']" placeholder="Address 2">
+          </md-input-container>
+        </p>
       </div>
-      <md-divider md-inset ng-if="!$last"></md-divider>
+      <md-button class="md-secondary">send</md-button>
+      <md-divider ng-if="!$last"></md-divider>
     </md-list-item>
   </md-list>
 </md-content>

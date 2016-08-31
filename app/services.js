@@ -29,24 +29,19 @@ app.service('ngNode', ['$q', function($q){
 app.service('AuthService', ['ngNode', function(ngNode){
 	
 	this.getQrcode = function(){
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(cookiesApi.getQrcode, arrArgs);
+		return ngNode.execute(cookiesApi.getQrcode, Array.prototype.slice.call(arguments));
 	}
 
 	this.checkLogin = function(){
-		console.log(arguments)
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(cookiesApi.checkLogin, arrArgs);
+		return ngNode.execute(cookiesApi.checkLogin, Array.prototype.slice.call(arguments));
 	}
 
 }])
 
 app.service('DataService', function(){
-	var data = {
-		"cookies": global.cookies,
-		"values": global.values,
-		"messages": global.messages
-	};
+
+	var data = global.wx;
+
 	this.set = function(key, value){
 		data[key] = value;
 	}
@@ -57,19 +52,19 @@ app.service('DataService', function(){
 
 app.service('WxService', ['ngNode', function(ngNode){
 	this.getContact = function(){
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(wxApi.getContact, arrArgs);
+		return ngNode.execute(wxApi.getContact, Array.prototype.slice.call(arguments));
 	}
 	this.iniWechat = function(){
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(wxApi.iniWechat, arrArgs);
+		return ngNode.execute(wxApi.iniWechat, Array.prototype.slice.call(arguments));
 	}
 	this.wxSync = function(){
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(wxApi.wxSync, arrArgs);
+		return ngNode.execute(wxApi.wxSync, Array.prototype.slice.call(arguments));
 	}
 	this.sendMessage = function(){
-		var arrArgs = Array.prototype.slice.call(arguments);
-		return ngNode.execute(messageApi.sendMessage, arrArgs);
+		return ngNode.execute(messageApi.sendMessage, Array.prototype.slice.call(arguments));
+	}
+
+	this.saveConfig = function(){
+		return ngNode.execute(wxApi.saveConfig, Array.prototype.slice.call(arguments));
 	}
 }])

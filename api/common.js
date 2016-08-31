@@ -3,8 +3,26 @@ var http = require("http")
 var fs = require("fs")
 
 var LIB_PATH = `${__dirname}/libs`
+var ASSETS_PATH = `${__dirname}/assets`
 var _CONF = require(`${LIB_PATH}/conf`)
 
+
+
+
+function loadConfig(){
+	try{
+		var config = JSON.parse(fs.readFileSync(`${ASSETS_PATH}/config.json`, "utf-8"));
+		global.wx.cookies = config["cookies"];
+		global.wx.cookies = config["values"];
+	} catch(e) {
+		return false;
+	}
+}
+
+// check if cookies expires
+(function{
+
+}())
 
 var request = function(fn, parameter, callback){
 	var req = fn(parameter, function(res){
@@ -57,27 +75,27 @@ module.exports = {
 
 		for (var i = 0; i < cookies.length; i++) {
 			cookie = cookies[i].split(";")[0].split("=");
-			global.cookies[cookie[0]] = cookie[1]
+			global.wx.cookies[cookie[0]] = cookie[1]
 		}
 	},
 
 	scriptParser: function(script){	
-		script = script.replace(/window/g, "global.window")
+		script = script.replace(/window/g, "global.wx.window")
 		eval(script);
-		return global.window
+		return global.wx.window
 	},
 
 	saveCookies: function(){
-		  fs.writeFileSync(`${LIB_PATH}/cookies.json`, JSON.stringify(global.cookies));
+		  fs.writeFileSync(`${LIB_PATH}/cookies.json`, JSON.stringify(global.wx.cookies));
 	},
 
 	saveValues: function(){
-		  fs.writeFileSync(`${LIB_PATH}/values.json`, JSON.stringify(global.values));
+		  fs.writeFileSync(`${LIB_PATH}/values.json`, JSON.stringify(global.wx.cookies));
 	},
 
 	getHeaders: function(fileName){	
 		var headers = JSON.parse(fs.readFileSync(`${LIB_PATH}/${fileName}.json`, 'utf8'))
-		headers["Cookie"] = toCookiesHeader(global.cookies)
+		headers["Cookie"] = toCookiesHeader(global.wx.cookies)
 		return headers;
 	},
 
@@ -86,5 +104,20 @@ module.exports = {
 	},
 	now: function(){
 		return +new Date;
+	},
+	saveConfig: function(){
+		 fs.writeFileSync(`${ASSETS_PATH}/config.json`, JSON.stringify({
+		 	"cookies": global.wx.cookies,
+		 	"values": global.wx.cookies
+		 }));
+	},
+	loadConfig: function(){
+		try{
+			var config = JSON.parse(fs.readFileSync(`${ASSETS_PATH}/config.json`, "utf-8"));
+			global.wx.cookies = config["cookies"];
+			global.wx.cookies = config["values"];
+		} catch(e) {
+			console.log("not exist");
+		}
 	}
 }

@@ -4,22 +4,18 @@ var fs = require("fs")
 
 var common = require("./common")
 
-global.cookies = {
-	"mm_lang": "ZH_CN"
-}
-
-global.values = {}
-global.window = {}
-global.user = {}
-global.messages = {}
 
 // load messages.json
-function loadMessage(){
-	global.messages = JSON.parse(fs.readFileSync( `${__dirname}/assets/messages.json`, 'utf8'))
-	console.log(global.messages["yjsb"])
-}
-loadMessage();
+// function loadMessage(){
+// 	global.wx.messages = JSON.parse(fs.readFileSync( `${__dirname}/assets/messages.json`, 'utf8'))
+// 	console.log(global.wx.messages["yjsb"])
+// }
+// loadMessage();
 
+function initApp(){
+	common.loadConfig();
+	console.log(global.wx.cookies, global.wx.cookies);
+}
 
 
 var LIB_PATH = `${__dirname}/libs`
@@ -40,7 +36,7 @@ function initCookies(){
             },
             f = d.split(".");
         2 < f.length && (d = (e[f.slice(-2).join(".")] ? f.slice(-3) : f.slice(-2)).join("."));
-        global.cookies[c] = a;
+        global.wx.cookies[c] = a;
        	common.saveCookies();
     }
 
@@ -68,7 +64,7 @@ function getQrcode(callback) {
 	};
 
 	common.httpRequestData(options, function(body){
-		global.window["QRLogin"] = {}
+		global.wx.window["QRLogin"] = {}
 		callback(common.scriptParser(body)["QRLogin"]);
 	})
 }
@@ -83,14 +79,14 @@ function redirect(status, callback){
 		var newCookies = res.headers["set-cookie"];
 		common.cookiesParser(newCookies)
 		common.saveCookies();
-        global.values = {
+        global.wx.cookies = {
             "ret": body.match(/<ret>(.*)<\/ret>/)[1],
             "skey": body.match(/<skey>(.*)<\/skey>/)[1],
             "wxsid": body.match(/<wxsid>(.*)<\/wxsid>/)[1],
             "wxuin": body.match(/<wxuin>(.*)<\/wxuin>/)[1],
             "pass_ticket": body.match(/<pass_ticket>(.*)<\/pass_ticket>/)[1]
         }
-        console.log(global.values)
+        console.log(global.wx.cookies)
         common.saveValues();
         callback();
 	})

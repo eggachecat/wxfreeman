@@ -8,14 +8,14 @@ var LIB_PATH = `${__dirname}/libs`
 var _CONF = require(`${LIB_PATH}/conf`)
 
 
-// global.messages = {}
+global.wx.messages = {}
 
-// // load messages.json
-// function loadMessage(){
-// 	global.messages = JSON.parse(fs.readFileSync( `${__dirname}/assets/messages.json`, 'utf8'))
-// 	console.log(global.messages)
-// }
-
+// load messages.json
+function loadMessage(){
+	global.wx.messages = JSON.parse(fs.readFileSync( `${__dirname}/assets/messages.json`, 'utf8'))
+	console.log(global.wx.messages)
+}
+loadMessage();
 
 
 
@@ -26,15 +26,15 @@ function createMsgPostData(content, targetName){
 
 	return {
 		"BaseRequest": {
-			"Uin": parseInt(global.cookies["wxuin"]),
-			"Sid": global.cookies["wxsid"],
-			"Skey": global.values["skey"],
+			"Uin": parseInt(global.wx.cookies["wxuin"]),
+			"Sid": global.wx.cookies["wxsid"],
+			"Skey": global.wx.cookies["skey"],
 			"DeviceID": common.getDeviceID()
 		},
 		"Msg": {
 			"Type": 1,
 			"Content": content,
-			"FromUserName": global.values["user"]["UserName"],
+			"FromUserName": global.wx.cookies["user"]["UserName"],
 			"ToUserName": targetName,
 			"LocalID": MsgId,
 			"ClientMsgId": MsgId
@@ -56,7 +56,7 @@ function sendMessage(content, targetName, callback){
 	var headers = common.getHeaders("send-message")
 	var options = {
         "hostname": _CONF.host.wx,
-        "path": `/cgi-bin/mmwebwx-bin/webwxsendmsg?pass_ticket=${global.values["pass_ticket"]}`,
+        "path": `/cgi-bin/mmwebwx-bin/webwxsendmsg?pass_ticket=${global.wx.cookies["pass_ticket"]}`,
         "method": "POST",
         "headers": headers
     }

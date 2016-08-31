@@ -42,8 +42,8 @@ function iniWechat(callback){
 
     var postData = {
         BaseRequest: {
-            "Uin": global.cookies["wxuin"],
-            "Sid": global.cookies["wxsid"],
+            "Uin": global.wx.cookies["wxuin"],
+            "Sid": global.wx.cookies["wxsid"],
             "Skey": "",
             "DeviceID": common.getDeviceID()
         }
@@ -58,8 +58,8 @@ function iniWechat(callback){
             data += chunk;
         })
         res.on("end", function(){
-           global.values["user"] = JSON.parse(data)["User"];
-           global.values["SyncKey"] = JSON.parse(data)["SyncKey"];
+           global.wx.cookies["user"] = JSON.parse(data)["User"];
+           global.wx.cookies["SyncKey"] = JSON.parse(data)["SyncKey"];
            callback(JSON.parse(data));
            //wxSync(callback)
         })
@@ -75,19 +75,19 @@ function wxSync(callback){
 
     var options = {
         hostname: _CONF.host.wx,
-        path: `/cgi-bin/mmwebwx-bin/webwxsync?sid=${global.cookies["wxsid"]}&skey=${global.values["skey"]}&pass_ticket=${global.values["pass_ticket"]}`,
+        path: `/cgi-bin/mmwebwx-bin/webwxsync?sid=${global.wx.cookies["wxsid"]}&skey=${global.wx.cookies["skey"]}&pass_ticket=${global.wx.cookies["pass_ticket"]}`,
         method: 'POST',
         headers: headers
     };
 
     var postData = {
         BaseRequest: {
-            "Uin": global.cookies["wxuin"],
-            "Sid": global.cookies["wxsid"],
-            "Skey": global.values["skey"],
+            "Uin": global.wx.cookies["wxuin"],
+            "Sid": global.wx.cookies["wxsid"],
+            "Skey": global.wx.cookies["skey"],
             "DeviceID": common.getDeviceID()
         },
-        SyncKey: global.values["SyncKey"],
+        SyncKey: global.wx.cookies["SyncKey"],
         rr: ~new Date
     }
 
@@ -119,3 +119,8 @@ function wxSync(callback){
 exports.getContact = getContact;
 exports.iniWechat = iniWechat;
 exports.wxSync = wxSync;
+exports.saveConfig = common.saveConfig;
+
+
+
+

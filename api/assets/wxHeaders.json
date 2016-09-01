@@ -1,0 +1,10 @@
+{
+	"Accept": "*/*",
+	"Accept-Language": "zh-TW,zh;q=0.8,en-US;q=0.6,en;q=0.4,zh-CN;q=0.2,ja;q=0.2",
+	"Cache-Control": "no-cache",
+	"Connection": "keep-alive",	
+	"Pragma": "no-cache",
+	"Host":"login.wx.qq.com",	
+	"Referer":"https://wx.qq.com/",
+	"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+}

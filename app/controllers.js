@@ -3,36 +3,18 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 
 	$scope.qrcode = "";
  
-	// AuthService
-	// 	.getQrcode()
-	// 	.then(function(qrcode){
-	// 		var uuid = qrcode["uuid"];			
-	// 		$scope.qrcode = `http://login.weixin.qq.com/qrcode/${uuid}`
+	AuthService
+		.getQrcode()
+		.then(function(qrcode){
+			var uuid = qrcode["uuid"];			
+			$scope.qrcode = `http://login.weixin.qq.com/qrcode/${uuid}`
 	
-	// 		return AuthService.checkLogin(uuid)
-	// 	})
-	// 	.then(function(){ 
-	// 			return WxService.getContact()
-	// 	})
-	// 	.then(function(contactList){
-	// 		DataService.set("contactList", contactList["MemberList"])
-	// 		return WxService.iniWechat()
-	// 	})
-	// 	// .then(function(){
-	// 	// 	return WxService.wxSync()
-	// 	// })
- // 		.then(function(iniData){
- // 			console.log(iniData["User"])
- // 			WxService.saveConfig();
- // 			DataService.set("user", iniData["User"])
- // 			$state.go("app.sendMessage")
- // 		})
-
-
-
-	WxService.getContact()
+			return AuthService.checkLogin(uuid)
+		})
+		.then(function(){ 
+				return WxService.getContact()
+		})
 		.then(function(contactList){
-			console.log(contactList)
 			DataService.set("contactList", contactList["MemberList"])
 			return WxService.iniWechat()
 		})
@@ -40,10 +22,30 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 		// 	return WxService.wxSync()
 		// })
  		.then(function(iniData){
- 			console.log(iniData)
+ 			console.log(iniData["User"])
+ 			WxService.saveConfig();
  			DataService.set("user", iniData["User"])
- 			// $state.go("app.sendMessage")
+ 			$state.go("app.sendMessage")
  		})
+
+
+
+	// WxService.getContact()
+	// 	.then(function(contactList){
+	// 		console.log(contactList)
+	// 		DataService.set("contactList", contactList["MemberList"])
+	// 		return WxService.iniWechat()
+	// 	})
+	// 	// .then(function(){
+	// 	// 	return WxService.wxSync()
+	// 	// })
+ // 		.then(function(iniData){
+ // 			console.log(iniData)
+ // 			DataService.set("user", iniData["User"])
+ // 			// $state.go("app.sendMessage")
+ // 		})
+
+ 	// AuthService.isLogin()
 
  	$scope.go = function(){
  		$state.go("app.sendMessage")

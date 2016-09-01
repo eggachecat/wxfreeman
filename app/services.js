@@ -1,16 +1,16 @@
 // node-modules all in services
 
+var wxCookies = require('./api/wxCookies')
+var wxApp = require('./api/wxApp')
 
-var cookiesApi = require('./api/cookiesApi')
-var wxApi = require('./api/wxApi')
-var messageApi = require("./api/messageApi")
+var argsToArr = Array.prototype.slice;
 
 app.service('ngNode', ['$q', function($q){
 	this.execute = function(asyncFn){
 		var linker = $q.defer();
 
 
-		var arrArgs = Array.prototype.slice.call(arguments, 1)[0];
+		var arrArgs = argsToArr.call(arguments, 1)[0];
 		arrArgs.push(function(data){
 			linker.resolve(data);
 		});
@@ -20,7 +20,7 @@ app.service('ngNode', ['$q', function($q){
 	}
 
 	this.executeSync = function(asyncFn){		
-		var arrArgs = Array.prototype.slice.call(arguments, 1)[0];
+		var arrArgs = argsToArr.call(arguments, 1)[0];
 		console.log(arrArgs)
 		return asyncFn.apply(this, arrArgs);
 	}
@@ -29,18 +29,23 @@ app.service('ngNode', ['$q', function($q){
 app.service('AuthService', ['ngNode', function(ngNode){
 	
 	this.getQrcode = function(){
-		return ngNode.execute(cookiesApi.getQrcode, Array.prototype.slice.call(arguments));
+		return ngNode.execute(wxCookies.getQrcode, argsToArr.call(arguments));
 	}
 
 	this.checkLogin = function(){
-		return ngNode.execute(cookiesApi.checkLogin, Array.prototype.slice.call(arguments));
+		return ngNode.execute(wxCookies.checkLogin, argsToArr.call(arguments));
+	}
+
+	this.isLogin = function(){
+		return ngNode.execute(wxCookies.isLogin, argsToArr.call(arguments));
 	}
 
 }])
 
 app.service('DataService', function(){
 
-	var data = global.wx;
+	var data = {};
+
 
 	this.set = function(key, value){
 		data[key] = value;
@@ -48,23 +53,19 @@ app.service('DataService', function(){
 	this.get = function(key){
 		return data[key];
 	}
+	this.getWx = function(key){
+		return global.wx[key];
+	}
 })
 
 app.service('WxService', ['ngNode', function(ngNode){
 	this.getContact = function(){
-		return ngNode.execute(wxApi.getContact, Array.prototype.slice.call(arguments));
+		return ngNode.execute(wxApp.getContact, argsToArr.call(arguments));
 	}
 	this.iniWechat = function(){
-		return ngNode.execute(wxApi.iniWechat, Array.prototype.slice.call(arguments));
-	}
-	this.wxSync = function(){
-		return ngNode.execute(wxApi.wxSync, Array.prototype.slice.call(arguments));
+		return ngNode.execute(wxApp.iniWechat, argsToArr.call(arguments));
 	}
 	this.sendMessage = function(){
-		return ngNode.execute(messageApi.sendMessage, Array.prototype.slice.call(arguments));
-	}
-
-	this.saveConfig = function(){
-		return ngNode.execute(wxApi.saveConfig, Array.prototype.slice.call(arguments));
+		return ngNode.execute(wxApp.sendMessage, argsToArr.call(arguments));
 	}
 }])

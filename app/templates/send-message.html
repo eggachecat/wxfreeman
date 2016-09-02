@@ -17,13 +17,13 @@
 
 
   <md-list>
-    <md-list-item class="md-3-line" ng-repeat="contact in contactList" ng-if="messages[contact['RemarkName']]">
+    <md-list-item class="md-3-line" ng-repeat="contact in contactList" ng-if="contact.SnsFlag == 49">
       <div class="md-list-item-text">
         <h4>{{contact.NickName}}</h4>
         <h3>{{contact.RemarkName}}</h3>
         <p>
           <md-input-container md-no-float class="md-block">
-            <input ng-model="messages[contact['RemarkName']]['message']" placeholder="Address 2">
+            <input ng-model="messages[contact.NickName]" placeholder="message">
           </md-input-container>
         </p>
       </div>

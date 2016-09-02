@@ -19,6 +19,19 @@ app.service('ngNode', ['$q', function($q){
 		return linker.promise;
 	}
 
+	this.executeAlive = function(asyncFn){
+		var linker = $q.defer();
+
+
+		var arrArgs = argsToArr.call(arguments, 1)[0];
+		arrArgs.push(function(data){
+			linker.notify(data);
+		});
+	
+		asyncFn.apply(this, arrArgs);
+		return linker.promise;
+	}
+
 	this.executeSync = function(asyncFn){		
 		var arrArgs = argsToArr.call(arguments, 1)[0];
 		console.log(arrArgs)
@@ -62,8 +75,11 @@ app.service('WxService', ['ngNode', function(ngNode){
 	this.getContact = function(){
 		return ngNode.execute(wxApp.getContact, argsToArr.call(arguments));
 	}
-	this.iniWechat = function(){
-		return ngNode.execute(wxApp.iniWechat, argsToArr.call(arguments));
+	this.iniWx = function(){
+		return ngNode.execute(wxApp.iniWx, argsToArr.call(arguments));
+	}
+	this.syncWx = function(){
+		return ngNode.execute(wxApp.syncWx, argsToArr.call(arguments));
 	}
 	this.sendMessage = function(){
 		return ngNode.execute(wxApp.sendMessage, argsToArr.call(arguments));

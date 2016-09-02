@@ -16,37 +16,13 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 		})
 		.then(function(contactList){
 			DataService.set("contactList", contactList["MemberList"])
-			return WxService.iniWechat()
+			return WxService.iniWx()
 		})
-		// .then(function(){
-		// 	return WxService.wxSync()
-		// })
  		.then(function(iniData){
- 			console.log(iniData["User"])
- 			WxService.saveConfig();
- 			DataService.set("user", iniData["User"])
+ 			DataService.set("user", iniData["User"]);
  			$state.go("app.sendMessage")
  		})
-
-
-
-	// WxService.getContact()
-	// 	.then(function(contactList){
-	// 		console.log(contactList)
-	// 		DataService.set("contactList", contactList["MemberList"])
-	// 		return WxService.iniWechat()
-	// 	})
-	// 	// .then(function(){
-	// 	// 	return WxService.wxSync()
-	// 	// })
- // 		.then(function(iniData){
- // 			console.log(iniData)
- // 			DataService.set("user", iniData["User"])
- // 			// $state.go("app.sendMessage")
- // 		})
-
- 	// AuthService.isLogin()
-
+ 	
  	$scope.go = function(){
  		$state.go("app.sendMessage")
  	}
@@ -56,8 +32,17 @@ app.controller('SendMessageCtrl', ['$scope', '$state', 'DataService', 'WxService
 	
 	$scope.contactList = DataService.get("contactList");
 	$scope.user = DataService.get("user");
-	$scope.messages = DataService.get("messages");
-	console.log($scope.messages, $scope.messages)
+	$scope.messages = DataService.get("messages") || {};
+
+
+	WxService.syncWx()
+	.then(function(data){
+		console.log(data);
+	}, function(data){
+		console.log(data);
+	}, function(data){
+		console.log(data);
+	})
 
 	console.log($scope.contactList, $scope.user)
 	

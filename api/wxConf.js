@@ -16,3 +16,4 @@ module.exports = {
         "headers":  `${ASSETS_PATH}/wxHeaders.json`
     }
 }
+

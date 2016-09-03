@@ -113,13 +113,31 @@ function checkLogin(uuid, callback) {
 	})
 }
 
-var isLogin = function(onSuccess, onFailed){
-	wxRequest.httpsGetData("https://wx.qq.com", function(body, res){
-		console.log(body, res)	
-		console.log(body.match(/{isLogin:(.*)}/)[1])
+var isLogin = function(callback){
+
+	var headers = wxIO.getHeaders()
+    var reqObj = {
+        "options": {
+            "hostname": defaultHost.wx,
+            "path": '/',
+            "method": "GET",
+            "agent": false,
+            "headers": headers
+        }
+    }
+
+	wxRequest.httpsRequestData(reqObj, function(body, res){
+		var result = String(body).match(/isLogin:(.*)/)[1];
+		callback(eval(result))
 	})
-}
+} 
 
 exports.getQrcode = getQrcode;
 exports.checkLogin = checkLogin;
 exports.isLogin = isLogin;
+
+
+
+// "/cgi-bin/mmwebwx-bin/synccheck?r=1472814901825&skey=@crypt_4896113d_98da6104c4db5adc8d26cee0b7e72f30&sid=jky2iRxhsUK1ybjR&uin=779148661&deviceid=e800515288804332&synckey=1_650789635|2_650794631|3_650794583|1000_1472812382"__proto__: Object__proto__: Object
+
+// "/cgi-bin/mmwebwx-bin/synccheck?r=1472815016083&skey=%40crypt_4896113d_68eedb8c9cafb213567ed085ff58523e&sid=kjnNHtUprykXNlTa&uin=779148661&deviceid=e123172659733209&synckey=1_650789635%7C2_650794651%7C3_650794583%7C11_650794619%7C13_650720002%7C201_1472815013%7C203_1472814595%7C1000_1472812382%7C1001_1472812412&_=1472814986067

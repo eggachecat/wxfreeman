@@ -20,6 +20,7 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 		})
  		.then(function(iniData){
  			DataService.set("user", iniData["User"]);
+ 			AuthService.isLogin = true;
  			$state.go("app.sendMessage")
  		})
  	
@@ -29,20 +30,25 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 }])
 
 app.controller('SendMessageCtrl', ['$scope', '$state', 'DataService', 'WxService', function($scope, $state, DataService, WxService){
+
+	$scope.data = DataService.get();
 	
-	$scope.contactList = DataService.get("contactList");
-	$scope.user = DataService.get("user");
-	$scope.messages = DataService.get("messages") || {};
+	$scope.contactList = $scope.data["contactList"];
+	$scope.user = $scope.data["user"];
+	$scope.messages = $scope.data["messages"] || {};
 
-
-	WxService.syncWx()
-	.then(function(data){
-		console.log(data);
-	}, function(data){
-		console.log(data);
-	}, function(data){
-		console.log(data);
+	// var tmp = require("./api/wxIO");
+	// tmp.loadConfig();
+	WxService.syncWx(function(data){
+		console.log("new messages comming!!", data)
 	})
+	// .then(function(data){
+	// 	console.log(data);
+	// }, function(data){
+	// 	console.log(data);
+	// }, function(data){
+	// 	console.log(data);
+	// })
 
 	console.log($scope.contactList, $scope.user)
 	
@@ -50,6 +56,13 @@ app.controller('SendMessageCtrl', ['$scope', '$state', 'DataService', 'WxService
 		$state.go("login")
 	}
 
+	$scope.sendMessage = function(msg, target){
+		WxService
+			.sendMessage(msg,target)
+			.then(function(ret){
+				console.log(ret);
+			})
+	}
 
 	$scope.sendAllMessage = function(){
 		angular.forEach($scope.contactList, function(contact){
@@ -80,7 +93,7 @@ app.controller('NavCtrl', ['$scope', '$state', function($scope, $state){
 
 	];
 	$scope.stateNameTable = {
-		"app.sendMessage": "发送信息"
+		"app.sendMessage": "信息"
 	}
 	$scope.current = $state.current.name;
 }])

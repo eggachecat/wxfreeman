@@ -24,7 +24,7 @@ function scriptParser(script) {
 
 function createMsgPostData(content, targetName){
 
-    var MsgId = (common.now() + Math.random().toFixed(3)).replace(".", "");
+    var MsgId = (+new Date + Math.random().toFixed(3)).replace(".", "");
 
     return {
         "BaseRequest": getBaseRequest(),
@@ -110,35 +110,52 @@ function sendMessage(content, targetName, callback){
        callback(res)
     })
 }
-
- var syncCheck = function(callback) {
-    
+ 
+ var syncWx = function(callback) {
+    console.log("syncCheck!!")
     var headers = wxIO.getHeaders()
+    var wxValues = global.wx.values;
+
     var reqObj = {
         "options": {
             "hostname":defaultHost.webpush,
-            "path": `/cgi-bin/mmwebwx-bin/synccheck?r=${+new Date}&skey=${global.wx.values["skey"]}&sid=${global.wx.values["sid"]}&uin=${global.wx.values["uin"]}&deviceid=${getDeviceID()}&synckey=${getFormateSyncKey()}`,
-            "method": "POST",
+            "path": '/cgi-bin/mmwebwx-bin/synccheck' + "?" + ["r=" + (+new Date), "skey=" + encodeURIComponent(wxValues["skey"]), "sid=" + encodeURIComponent(wxValues["wxsid"]), "uin=" + wxValues["wxuin"], "deviceid=" + getDeviceID(), "synckey=" + encodeURIComponent(getFormateSyncKey())].join("&"),
+            "method": "GET",
+            "agent": false,
             "headers": headers
         }
     }  
 
-     wxRequest.requestData(reqObj, function(res) {
-        console.log(res);
-       var rtn = scriptParser(res)["synccheck"]
-       callback(rtn)
+    console.log(reqObj)
+
+    wxRequest.httpsRequestData(reqObj, function(data, res) {
+      
+        var rtn = scriptParser(data)["synccheck"]
+        console.log(rtn)
+        if (!rtn || rtn.retcode !== "0") {
+            callback();
+        } else {
+            if (rtn.selector !== "0") {
+                webwxsync(function(data) {
+                    callback(data);
+                    syncWx(callback)
+                })
+            } else {
+                syncWx(callback)
+            }
+        }
     })
  }
 
 var webwxsync = function(callback) {
 
-
     var headers = wxIO.getHeaders()
+    var wxValues = global.wx.values;
 
     var reqObj = {
         "options": {
             "hostname":defaultHost.wx,
-            "path": `/cgi-bin/mmwebwx-bin/webwxsync?sid=${global.wx.values["wxsid"]}&skey=${global.wx.values["skey"]}&pass_ticket=${global.wx.values["pass_ticket"]}`,
+            "path": `/cgi-bin/mmwebwx-bin/webwxsync?sid=${wxValues["wxsid"]}&skey=${wxValues["skey"]}&pass_ticket=${wxValues["pass_ticket"]}`,
             "method": "POST",
             "headers": headers
         },
@@ -149,27 +166,20 @@ var webwxsync = function(callback) {
         }
     }  
 
-    wxRequest.requestData(reqObj, function(res) {
-        console.log(res);
-       callback(res)
-    })
-}
-
-var syncWx = function(callback){
-    syncCheck(function(rtn){
-        if(rtn && rtn.selector){
-            webwxsync(function(data){
-                callback(data);
-                syncWx(callback);
-            })
-        } else {
-            syncWx(callback)
-        }
+    wxRequest.requestData(reqObj, function(data) {
+        var obj = JSON.parse(data)
+        global.wx.values["SyncKey"] = obj["SyncKey"];
+        callback(data)
     })
 }
 
 exports.getContact = getContact;
 exports.iniWx = iniWx;
 exports.syncWx = syncWx;
+exports.sendMessage = sendMessage;
 
 
+
+
+// "/cgi-bin/mmwebwx-bin/synccheck?r=1472815053018&skey=%40crypt_4896113d_68eedb8c9cafb213567ed085ff58523e&sid=kjnNHtUprykXNlTa&uin=779148661&deviceid=e717783176972749&synckey=1_650789635%7C2_650794654%7C3_650794583%7C11_650794619%7C13_650720002%7C201_1472815050%7C203_1472814595%7C1000_1472812382%7C1001_1472812412&_=1472814986071
+// "/cgi-bin/mmwebwx-bin/synccheck?r=1472815707694&skey=%40crypt_4896113d_65e8d1dbf6d9127adb83748e6867350e&sid=WyQK3QhMY9PYzFtA&uin=779148661&deviceid=e445904521497093&synckey=1_650789635%7C2_650794655%7C3_650794583%7C1000_1472812382"

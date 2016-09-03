@@ -1,0 +1,9 @@
+{
+	"Accept": "*/*",
+	"Accept-Language": "zh-TW,zh;q=0.8,en-US;q=0.6,en;q=0.4,zh-CN;q=0.2,ja;q=0.2",
+	"Cache-Control": "no-cache",
+	"Pragma": "no-cache",
+	"Host":"webpush.wx.qq.com",	
+	"Referer":"https://wx.qq.com/?&lang=zh_CN",
+	"User-Agent":"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"
+}

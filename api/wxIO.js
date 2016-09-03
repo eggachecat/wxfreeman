@@ -34,7 +34,6 @@ var loadConfig = function(){
 		global.wx = readJson(wxFiles["wxConfig"]);
 	} catch(e) {
 		console.log(e)
-		throw e;
 	}
 }
 

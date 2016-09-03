@@ -2,6 +2,7 @@
 
 var wxCookies = require('./api/wxCookies')
 var wxApp = require('./api/wxApp')
+var wxIO = require('./api/wxIO')
 
 var argsToArr = Array.prototype.slice;
 
@@ -39,7 +40,9 @@ app.service('ngNode', ['$q', function($q){
 	}
 }])
 
-app.service('AuthService', ['ngNode', function(ngNode){
+app.service('AuthService', ['ngNode', '$state', 'DataService', function(ngNode, $state, DataService){
+
+	this.isLogin = false;
 	
 	this.getQrcode = function(){
 		return ngNode.execute(wxCookies.getQrcode, argsToArr.call(arguments));
@@ -53,6 +56,36 @@ app.service('AuthService', ['ngNode', function(ngNode){
 		return ngNode.execute(wxCookies.isLogin, argsToArr.call(arguments));
 	}
 
+	this.loadConfig = function(){
+		return ngNode.execute(wxIO.loadConfig, argsToArr.call(arguments));
+	}
+
+  //   try {
+		// wxIO.loadConfig();
+  //       wxCookies
+  //           .isLogin(function(isLogin) {
+		// 		this.isLogin = isLogin;
+		// 		if(! this.isLogin){
+		// 			console.log("not login")
+		// 			$state.go("login")
+		// 		} else {
+  //              	 	WxService
+	 //               	 	.getContact()
+	 //                    .then(function(contactList) {
+	 //                        DataService.set("contactList", contactList["MemberList"])
+	 //                        return WxService.iniWx()
+	 //                    })
+	 //                    .then(function(iniData) {
+	 //                        DataService.set("user", iniData["User"]);
+	 //                        $state.go("app.sendMessage")
+	 //                    })
+		// 		}
+  //           })
+  //   } catch (e) {
+  //   	console.log("error")
+  //   	$state.go("login")
+  //   }
+
 }])
 
 app.service('DataService', function(){
@@ -63,19 +96,19 @@ app.service('DataService', function(){
 	this.set = function(key, value){
 		data[key] = value;
 	}
-	this.get = function(key){
-		return data[key];
+	this.get = function(){
+		return data;
 	}
 	this.getWx = function(key){
 		return global.wx[key];
 	}
 })
 
-app.service('WxService', ['ngNode', function(ngNode){
-	this.getContact = function(){
+app.service('WxService', ['ngNode', 'AuthService', 'DataService', function(ngNode, AuthService, DataService){
+	var getContact = this.getContact = function(){
 		return ngNode.execute(wxApp.getContact, argsToArr.call(arguments));
 	}
-	this.iniWx = function(){
+	var iniWx = this.iniWx = function(){
 		return ngNode.execute(wxApp.iniWx, argsToArr.call(arguments));
 	}
 	this.syncWx = function(){
@@ -84,4 +117,17 @@ app.service('WxService', ['ngNode', function(ngNode){
 	this.sendMessage = function(){
 		return ngNode.execute(wxApp.sendMessage, argsToArr.call(arguments));
 	}
+
+    this.getInfo = function(callback) {
+        getContact()
+            .then(function(contactList) {
+                DataService.set("contactList", contactList["MemberList"])
+                console.log(contactList["MemberList"])
+                return iniWx()
+            })
+            .then(function(iniData) {
+                DataService.set("user", iniData["User"]);
+                callback();
+            })
+    }
 }])

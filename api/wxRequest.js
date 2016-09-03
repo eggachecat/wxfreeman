@@ -13,7 +13,6 @@ var request = function(fn, reqObj, callback){
 
 	var req = fn(reqObj.options, function(res){
 
-
 		var ans = '';
 		res.on("data", function(chunk){
 			ans += chunk;
@@ -43,10 +42,11 @@ var httpsGetData = function(url, callback){
 	return request(https.get, { options: url }, callback);
 }
 
-var httpsRequesttData = function(url, callback){
+var httpsRequestData = function(reqObj, callback){
 	return request(https.request, reqObj, callback);
 }
 
 exports.requestData = requestData;
 exports.getData = getData;
 exports.httpsGetData = httpsGetData;
+exports.httpsRequestData = httpsRequestData;

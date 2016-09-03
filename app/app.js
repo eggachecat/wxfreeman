@@ -22,7 +22,7 @@ app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$loc
 
 		// $locationProvider.html5Mode({ enabled: true, requireBase: false });
 
-
+	
 		var TEMPLATE_ROOT_DIR = `./app/templates/`
 
 		$stateProvider
@@ -44,3 +44,42 @@ app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$loc
 
 	}
 ])
+
+
+app.run(function ($rootScope, $state, AuthService, DataService, WxService) { 
+
+	$rootScope.login = false;
+
+    try {
+    	AuthService.loadConfig();
+	    AuthService
+			.isLogin()
+			.then(function(isLogin){
+				AuthService.login = isLogin;
+				console.log(isLogin)
+		        if (isLogin) {
+		        	WxService.getInfo(function(){
+		        		$state.go("app.sendMessage")
+		        	})
+		        } else {
+		        	$state.go("login")
+		        }
+			})
+    } catch (e) {
+    	console.log(e)
+    	$state.go("login")
+    }
+
+		
+
+
+	$rootScope.$on('$stateChangeStart', function (event, next, nextParams, fromState) {
+		console.log(next.name, AuthService.login)
+		if (!AuthService.isLogin) {
+			if (next.name !== 'login' && next.name !== 'splash') {
+				event.preventDefault();
+				$state.go('login');
+			}
+		}
+	});
+});

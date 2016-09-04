@@ -22,7 +22,6 @@ app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', '
 	 		.then(function(iniData){
 	 			DataService.set("user", iniData["User"]);
 	 			AuthService.valid = true;
-	 			AuthService.setCookies();
 	 			$state.go("app.sendMessage")
 	 		})
  	})
@@ -68,6 +67,22 @@ app.controller('SendMessageCtrl', ['$scope', '$state', 'DataService', 'WxService
 			})
 	}
 
+	// $scope.getHeaderImage = function(contact){
+	// 	WxService.getHeaderImage(contact.HeadImgUrl).then(function(base64Image){
+	// 		contact.src = base64Image;
+	// 	})
+	// }
+
+	function getAllImages(){
+		angular.forEach($scope.contactList, function(contact){
+			WxService.getHeaderImage(contact.HeadImgUrl).then(function(base64Image){
+				contact.src = base64Image;
+			})
+		})
+	}
+
+	getAllImages();
+
 	$scope.sendAllMessage = function(){
 		angular.forEach($scope.contactList, function(contact){
 
@@ -97,7 +112,7 @@ app.controller('NavCtrl', ['$scope', '$state', function($scope, $state){
 
 	];
 	$scope.stateNameTable = {
-		"app.sendMessage": "信息"
+		"app.sendMessage": "群发"
 	}
 	$scope.current = $state.current.name;
 }])

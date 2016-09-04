@@ -37,10 +37,10 @@ app.service('ngNode', ['$q', function($q){
 		var arrArgs = argsToArr.call(arguments, 1)[0];
 		console.log(arrArgs)
 		return asyncFn.apply(this, arrArgs);
-	}
+	} 
 }])
 
-app.service('AuthService', ['ngNode', '$state', 'DataService', '$cookies', function(ngNode, $state, DataService, $cookies){
+app.service('AuthService', ['ngNode', '$state', 'DataService', function(ngNode, $state, DataService){
 
 	this.valid = false;
 	
@@ -59,47 +59,6 @@ app.service('AuthService', ['ngNode', '$state', 'DataService', '$cookies', funct
 	this.loadConfig = function(){
 		return ngNode.execute(wxIO.loadConfig, argsToArr.call(arguments));
 	}
-
-	this.getCookies = function(){
-		return ngNode.execute(wxIO.getCookies, argsToArr.call(arguments));
-	}
-
-	this.setCookies = function(){
-		var cookies = DataService.getWx("cookies");
-		angular.forEach(cookies, function(v, k){
-			console.log(k,v);
-			$cookies.put(k, v);
-		})
-	}
-
-	
-
-  //   try {
-		// wxIO.loadConfig();
-  //       wxCookies
-  //           .isLogin(function(isLogin) {
-		// 		this.isLogin = isLogin;
-		// 		if(! this.isLogin){
-		// 			console.log("not login")
-		// 			$state.go("login")
-		// 		} else {
-  //              	 	WxService
-	 //               	 	.getContact()
-	 //                    .then(function(contactList) {
-	 //                        DataService.set("contactList", contactList["MemberList"])
-	 //                        return WxService.iniWx()
-	 //                    })
-	 //                    .then(function(iniData) {
-	 //                        DataService.set("user", iniData["User"]);
-	 //                        $state.go("app.sendMessage")
-	 //                    })
-		// 		}
-  //           })
-  //   } catch (e) {
-  //   	console.log("error")
-  //   	$state.go("login")
-  //   }
-
 }])
 
 app.service('DataService', function(){
@@ -130,6 +89,10 @@ app.service('WxService', ['ngNode', 'AuthService', 'DataService', function(ngNod
 	}
 	this.sendMessage = function(){
 		return ngNode.execute(wxApp.sendMessage, argsToArr.call(arguments));
+	}
+
+	this.getHeaderImage = function(){
+		return ngNode.execute(wxApp.getHeaderImage, argsToArr.call(arguments));
 	}
 
     this.getInfo = function(callback) {

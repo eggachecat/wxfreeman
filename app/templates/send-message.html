@@ -16,7 +16,7 @@
 <md-content>
   <md-list>
     <md-list-item class="md-3-line" ng-repeat="contact in data['contactList']" ng-if="contact.SnsFlag == 49">
-      <img ng-src="http://wx.qq.com{{contact.HeadImgUrl}}" class="md-avatar">
+      <img ng-src="data:img/jpg;base64,{{contact.src}}" class="md-avatar">
       <div class="md-list-item-text">
         <h4>{{contact.NickName}}</h4>
         <h3>{{contact.RemarkName}}</h3>
@@ -28,6 +28,7 @@
         </p>
       </div>
       <md-button class="md-secondary" ng-click="sendMessage(messages[contact.NickName], contact.UserName)">send</md-button>
+      <md-button class="md-secondary" ng-click="getHeaderImage(contact)">get image</md-button>
       <!-- <md-divider md-inset ng-if="!$last"></md-divider> -->
     </md-list-item>
   </md-list>

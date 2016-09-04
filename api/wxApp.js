@@ -147,6 +147,43 @@ function sendMessage(content, targetName, callback){
     })
  }
 
+
+var getHeaderImage = function(headerPath, callback){
+    var headers = wxIO.getHeaders()
+    var reqObj = {
+        "options": {
+            "hostname":defaultHost.wx,
+            "path": headerPath,
+            "method": "GET",
+            "headers": headers
+        }
+    }  
+    var http = require("http")
+    var fs = require("fs")
+
+    var req = http.request(reqObj.options, function(res){
+        var imagedata = ''
+        res.setEncoding('binary')
+
+        res.on('data', function(chunk){
+            imagedata += chunk
+        })
+
+        res.on('end', function(){
+           callback(new Buffer(imagedata, 'binary').toString('base64'));
+        })
+
+    })
+
+    req.end();
+
+
+    // wxRequest.requestData(reqObj, function(data, res) {
+
+    //     console.log(new Buffer(data).toString('base64'))
+    // })
+}
+
 var webwxsync = function(callback) {
 
     var headers = wxIO.getHeaders()
@@ -178,8 +215,10 @@ exports.iniWx = iniWx;
 exports.syncWx = syncWx;
 exports.sendMessage = sendMessage;
 
-
+exports.getHeaderImage = getHeaderImage;
 
 
 // "/cgi-bin/mmwebwx-bin/synccheck?r=1472815053018&skey=%40crypt_4896113d_68eedb8c9cafb213567ed085ff58523e&sid=kjnNHtUprykXNlTa&uin=779148661&deviceid=e717783176972749&synckey=1_650789635%7C2_650794654%7C3_650794583%7C11_650794619%7C13_650720002%7C201_1472815050%7C203_1472814595%7C1000_1472812382%7C1001_1472812412&_=1472814986071
 // "/cgi-bin/mmwebwx-bin/synccheck?r=1472815707694&skey=%40crypt_4896113d_65e8d1dbf6d9127adb83748e6867350e&sid=WyQK3QhMY9PYzFtA&uin=779148661&deviceid=e445904521497093&synckey=1_650789635%7C2_650794655%7C3_650794583%7C1000_1472812382"
+
+

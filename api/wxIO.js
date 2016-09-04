@@ -85,4 +85,3 @@ exports.saveConfig = saveConfig;
 exports.loadMessages = loadMessages;
 exports.saveMessages = saveMessages;
 exports.getHeaders = getHeaders;
-exports.getCookies = getCookies;

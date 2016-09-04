@@ -1,11 +1,13 @@
-var app = angular.module('wxfreeman', ['ngAnimate', "ui.router", 'ngMaterial', 'ngCookies']);
+var app = angular.module('wxfreeman', ['ngAnimate', "ui.router", 'ngMaterial']);
 
 
 
-app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$locationProvider', '$httpProvider',
-	function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider, $httpProvider) {
+app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$locationProvider', '$httpProvider', '$compileProvider',
+	function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider, $httpProvider, $compileProvider) {
 
 		$httpProvider.defaults.withCredentials = true;
+
+		$compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|local|data|chrome-extension):/);
 
 		$mdThemingProvider.theme('docs-dark', 'default')
 	      .primaryPalette('yellow')
@@ -57,7 +59,6 @@ app.run(function ($rootScope, $state, AuthService, DataService, WxService, $http
 				AuthService.valid = result;
 				console.log(result)
 		        if (result) {
-		        	AuthService.setCookies();
 		        	WxService.getInfo(function(){
 		        		$state.go("app.sendMessage")
 		        	})

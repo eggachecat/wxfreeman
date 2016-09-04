@@ -1,13 +1,11 @@
+var app = angular.module('wxfreeman', ['ngAnimate', "ui.router", 'ngMaterial', 'ngCookies']);
 
 
 
-var app = angular.module('wxfreeman', ['ngAnimate', "ui.router", 'ngMaterial']);
+app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$locationProvider', '$httpProvider',
+	function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider, $httpProvider) {
 
-
-
-
-app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$locationProvider',
-	function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider) {
+		$httpProvider.defaults.withCredentials = true;
 
 		$mdThemingProvider.theme('docs-dark', 'default')
 	      .primaryPalette('yellow')
@@ -46,36 +44,37 @@ app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$loc
 ])
 
 
-app.run(function ($rootScope, $state, AuthService, DataService, WxService) { 
+app.run(function ($rootScope, $state, AuthService, DataService, WxService, $http) { 
 
-	$rootScope.login = false;
 
     try {
     	AuthService.loadConfig();
+    	console.log(DataService.getWx("cookies"));
 	    AuthService
 			.isLogin()
-			.then(function(isLogin){
-				AuthService.login = isLogin;
-				console.log(isLogin)
-		        if (isLogin) {
+			.then(function(result){
+				console.log(DataService.getWx("cookies"));
+				AuthService.valid = result;
+				console.log(result)
+		        if (result) {
+		        	AuthService.setCookies();
 		        	WxService.getInfo(function(){
 		        		$state.go("app.sendMessage")
 		        	})
 		        } else {
 		        	$state.go("login")
+		        	$rootScope.$broadcast("not-login")
 		        }
 			})
     } catch (e) {
     	console.log(e)
     	$state.go("login")
+    	$rootScope.$broadcast("not-login")
     }
 
-		
-
-
 	$rootScope.$on('$stateChangeStart', function (event, next, nextParams, fromState) {
-		console.log(next.name, AuthService.login)
-		if (!AuthService.isLogin) {
+		console.log(next.name, AuthService.valid)
+		if (!AuthService.valid) {
 			if (next.name !== 'login' && next.name !== 'splash') {
 				event.preventDefault();
 				$state.go('login');

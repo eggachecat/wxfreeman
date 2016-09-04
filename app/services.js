@@ -40,9 +40,9 @@ app.service('ngNode', ['$q', function($q){
 	}
 }])
 
-app.service('AuthService', ['ngNode', '$state', 'DataService', function(ngNode, $state, DataService){
+app.service('AuthService', ['ngNode', '$state', 'DataService', '$cookies', function(ngNode, $state, DataService, $cookies){
 
-	this.isLogin = false;
+	this.valid = false;
 	
 	this.getQrcode = function(){
 		return ngNode.execute(wxCookies.getQrcode, argsToArr.call(arguments));
@@ -59,6 +59,20 @@ app.service('AuthService', ['ngNode', '$state', 'DataService', function(ngNode, 
 	this.loadConfig = function(){
 		return ngNode.execute(wxIO.loadConfig, argsToArr.call(arguments));
 	}
+
+	this.getCookies = function(){
+		return ngNode.execute(wxIO.getCookies, argsToArr.call(arguments));
+	}
+
+	this.setCookies = function(){
+		var cookies = DataService.getWx("cookies");
+		angular.forEach(cookies, function(v, k){
+			console.log(k,v);
+			$cookies.put(k, v);
+		})
+	}
+
+	
 
   //   try {
 		// wxIO.loadConfig();

@@ -75,8 +75,14 @@ var getHeaders = function(filePath){
 	return headers;
 }
 
+var getCookies = function(){
+	return toCookiesHeader(global.wx.cookies)
+}
+
+
 exports.loadConfig = loadConfig;
 exports.saveConfig = saveConfig;
 exports.loadMessages = loadMessages;
 exports.saveMessages = saveMessages;
 exports.getHeaders = getHeaders;
+exports.getCookies = getCookies;

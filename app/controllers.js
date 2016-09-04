@@ -1,28 +1,32 @@
 
-app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', 'DataService', '$state', function($scope, $timeout, AuthService, WxService, DataService, $state){
+app.controller('LoginCtrl', ['$scope', '$timeout', 'AuthService', 'WxService', 'DataService', '$state', '$http', function($scope, $timeout, AuthService, WxService, DataService, $state, $http){
 
 	$scope.qrcode = "";
  
-	AuthService
-		.getQrcode()
-		.then(function(qrcode){
-			var uuid = qrcode["uuid"];			
-			$scope.qrcode = `http://login.weixin.qq.com/qrcode/${uuid}`
+ 	$scope.$on("not-login", function(){
+ 		AuthService
+			.getQrcode()
+			.then(function(qrcode){
+				var uuid = qrcode["uuid"];			
+				$scope.qrcode = `http://login.weixin.qq.com/qrcode/${uuid}`
+		
+				return AuthService.checkLogin(uuid)
+			})
+			.then(function(){ 
+					return WxService.getContact()
+			})
+			.then(function(contactList){
+				DataService.set("contactList", contactList["MemberList"])
+				return WxService.iniWx()
+			})
+	 		.then(function(iniData){
+	 			DataService.set("user", iniData["User"]);
+	 			AuthService.valid = true;
+	 			AuthService.setCookies();
+	 			$state.go("app.sendMessage")
+	 		})
+ 	})
 	
-			return AuthService.checkLogin(uuid)
-		})
-		.then(function(){ 
-				return WxService.getContact()
-		})
-		.then(function(contactList){
-			DataService.set("contactList", contactList["MemberList"])
-			return WxService.iniWx()
-		})
- 		.then(function(iniData){
- 			DataService.set("user", iniData["User"]);
- 			AuthService.isLogin = true;
- 			$state.go("app.sendMessage")
- 		})
  	
  	$scope.go = function(){
  		$state.go("app.sendMessage")

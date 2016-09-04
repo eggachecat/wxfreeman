@@ -128,6 +128,7 @@ var isLogin = function(callback){
 
 	wxRequest.httpsRequestData(reqObj, function(body, res){
 		var result = String(body).match(/isLogin:(.*)/)[1];
+		console.log(wxIO.getHeaders());
 		callback(eval(result))
 	})
 } 

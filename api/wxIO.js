@@ -3,7 +3,7 @@ var fs = require("fs")
 
 var wxFiles = require("./wxConf").files;
 
-
+ 
 
 
 function readJson(filePath){
@@ -78,6 +78,10 @@ var getHeaders = function(filePath){
 var getCookies = function(){
 	return toCookiesHeader(global.wx.cookies)
 }
+
+
+exports.readJson = readJson;
+exports.writeJson = writeJson;
 
 
 exports.loadConfig = loadConfig;

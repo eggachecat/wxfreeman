@@ -3,6 +3,7 @@
 var wxCookies = require('./api/wxCookies')
 var wxApp = require('./api/wxApp')
 var wxIO = require('./api/wxIO')
+var nativeService = require('./api/nativeService')
 
 var argsToArr = Array.prototype.slice;
 
@@ -107,4 +108,16 @@ app.service('WxService', ['ngNode', 'AuthService', 'DataService', function(ngNod
                 callback();
             })
     }
+}])
+
+app.service('NativeService', ['ngNode', function(ngNode){
+	
+	
+	this.loadOneFile = function(){
+		return ngNode.execute(nativeService.loadOneFile, argsToArr.call(arguments));
+	}
+
+	this.saveToFile = function(){
+		return ngNode.execute(nativeService.saveToFile, argsToArr.call(arguments));
+	}
 }])

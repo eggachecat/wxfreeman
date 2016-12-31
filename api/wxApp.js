@@ -210,6 +210,10 @@ var webwxsync = function(callback) {
     })
 }
 
+
+
+
+
 exports.getContact = getContact;
 exports.iniWx = iniWx;
 exports.syncWx = syncWx;

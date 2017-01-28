@@ -1,9 +1,19 @@
-var app = angular.module('wxfreeman', ['ngAnimate', "ui.router", 'ngMaterial']);
 
+(function(){
+	angular
+		.module("wxfreeman", [
+			'ngAnimate', 
+			"ui.router", 
+			'ngMaterial'
+		]);
+})();
 
+(function(){
+	angular
+		.module("wxfreeman")
+		.config(config);
 
-app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$locationProvider', '$httpProvider', '$compileProvider',
-	function($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider, $httpProvider, $compileProvider) {
+	function config($stateProvider, $urlRouterProvider, $mdThemingProvider, $locationProvider, $httpProvider, $compileProvider) {
 
 		$httpProvider.defaults.withCredentials = true;
 
@@ -23,63 +33,52 @@ app.config(['$stateProvider', '$urlRouterProvider' , '$mdThemingProvider', '$loc
 		// $locationProvider.html5Mode({ enabled: true, requireBase: false });
 
 	
-		var TEMPLATE_ROOT_DIR = `./app/templates/`
+		var TEMPLATE_ROOT_DIR = `./app/`
 
 		$stateProvider
 	    	.state('login', {
 				url: "/login",
 				controller: "LoginCtrl",
-				templateUrl: TEMPLATE_ROOT_DIR +"login.html"
+				controllerAs: "loginViewModel",
+				templateUrl: TEMPLATE_ROOT_DIR +"login/login.html"
 		    })
 		    .state('app', {
 		    	url: "/app",
 		    	abstract: true,
 		    	controller: "NavCtrl",
-		    	templateUrl: TEMPLATE_ROOT_DIR + "nav.html",
-		    }).state('app.sendMessage', {
-					url: "/app/sendMessage",
-					controller: "SendMessageCtrl",
-					templateUrl: TEMPLATE_ROOT_DIR + "send-message.html"
-			   });
+		    	controllerAs: "navViewModel",
+		    	templateUrl: TEMPLATE_ROOT_DIR + "nav/nav.html",
+		    })
+		    .state('app.sendMessage', {
+				url: "/app/sendMessage",
+				controller: "SendMessageCtrl",
+				controllerAs: "smViewModel",
+				templateUrl: TEMPLATE_ROOT_DIR + "send/send-message.html"
+		   });
 
 	}
-])
+})();
 
 
-app.run(function ($rootScope, $state, AuthService, DataService, WxService, $http) { 
 
+(function(){
+	angular
+	    .module('wxfreeman')
+	    .run(runBlock);
 
-    try {
-    	AuthService.loadConfig();
-    	console.log(DataService.getWx("cookies"));
-	    AuthService
-			.isLogin()
-			.then(function(result){
-				console.log(DataService.getWx("cookies"));
-				AuthService.valid = result;
-				console.log(result)
-		        if (result) {
-		        	WxService.getInfo(function(){
-		        		$state.go("app.sendMessage")
-		        	})
-		        } else {
-		        	$state.go("login")
-		        	$rootScope.$broadcast("not-login")
-		        }
-			})
-    } catch (e) {
-    	console.log(e)
-    	$state.go("login")
-    	$rootScope.$broadcast("not-login")
-    }
+	runBlock.$inject = ['$rootScope', '$state', 'AuthService'];
 
-	$rootScope.$on('$stateChangeStart', function (event, next, nextParams, fromState) {
-		console.log(next.name, AuthService.valid)
-		if (!AuthService.valid) {
-			if (next.name !== 'login' && next.name !== 'splash') {
-				event.preventDefault();
-				$state.go('login');
+	function runBlock($rootScope, $state, AuthService) {
+	    
+		$rootScope.$on('$stateChangeStart', function (event, next, nextParams, fromState) {
+			console.log(next.name, AuthService.valid)
+			if (!AuthService.valid) {
+				if (next.name !== 'login' && next.name !== 'splash') {
+					event.preventDefault();
+					$state.go('login');
+				}
 			}
-		}
-	});
-});
+		});
+	}
+})();
+

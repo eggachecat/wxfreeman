@@ -44,6 +44,7 @@ function getQrcode(callback) {
 
 	initCookies();
 
+
 	var redirect_uri = encodeURIComponent(defaultConf.protocol + "//" + defaultHost.wx + "/cgi-bin/mmwebwx-bin/webwxnewloginpage");
 	var headers = wxIO.getHeaders();
 
@@ -56,7 +57,12 @@ function getQrcode(callback) {
 		}
 	}
 
+		console.log("send request")
+
+
 	wxRequest.requestData(reqObj, function(body){
+
+		console.log(body)
 		global.wx.window.QRLogin = {}
 		callback(scriptParser(body)["QRLogin"]);
 	})
@@ -88,8 +94,6 @@ function redirect(status, callback){
 function checkLogin(uuid, callback) {
 
 	var headers = wxIO.getHeaders()
-
-	console.log("check login", callback);
 
     var reqObj = {
         "options": {

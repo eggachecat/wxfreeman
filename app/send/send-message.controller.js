@@ -40,6 +40,51 @@
 		vm.loadMessages = loadMessages;
 
 		vm.beOrNotToBe = beOrNotToBe;
+
+		vm.generateLED = generateLED;
+
+
+		function generateLED(content){
+
+			var start = new Date();
+
+			var leds = []
+			for (var i = 0; i < content.length; i++) {
+
+				var char = content[i];
+				var charMatrix = NativeService.getCharMatrix(char);
+
+				var str = "";
+				for (var h = 0; h < charMatrix.height; h++) {
+					for (var w = 0; w < charMatrix.width; w++) {
+						if(charMatrix.map[[h, w]]){
+							str += "[呲牙]";
+						}else{
+							str += "     ";
+						}
+					}
+					str += "\n";
+				}
+				leds.push(str);
+			}
+
+			function sendMessageInOrder(i){
+				if(leds[i]){
+					sendMessage(leds[i], vm.user["UserName"], function(){
+						return sendMessageInOrder(i + 1);
+					});
+				} else {
+					var now = new Date();
+					console.log(now-start)
+					return;
+				}
+			}
+
+			sendMessageInOrder(0);
+			// sendMessage(str, vm.user["UserName"], function(){
+					
+			// 	});
+		}
 	
 
 		function syncWechat(){
@@ -63,11 +108,22 @@
 			$state.go("login")
 		}
 
-		function sendMessage(msg, target){
+		function sendMessage(msg, target, onSuccess, onFailed){
 			WxService
 				.sendMessage(msg,target)
 				.then(function(ret){
-					console.log(ret);
+					
+					var err = !! JSON.parse(ret).BaseResponse.Ret;
+					if(err){
+						if(onFailed){
+							onFailed();
+						}
+					}else{
+						if(onSuccess){
+							onSuccess();
+						}
+					}
+
 				})
 		} 
 

@@ -25,6 +25,12 @@
 <button  ng-click="save()">save</button> -->
 
 <md-content>
+
+   <md-input-container md-no-float class="md-block">
+      <input ng-model="ledCharacter" placeholder="ledCharacter">
+    </md-input-container>
+  <md-button class="md-secondary"  ng-click="smViewModel.generateLED(ledCharacter)">led</md-button>
+
   <md-list>
     <md-list-item class="md-3-line" 
                   ng-repeat="contact in smViewModel.data['contactList'] | searchFilter: keyword"

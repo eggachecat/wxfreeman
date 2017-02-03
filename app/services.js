@@ -167,6 +167,10 @@ var __$argsToArr = Array.prototype.slice;
 		this.saveToFile = function(){
 			return ngNode.execute(nativeService.saveToFile, __$argsToArr.call(arguments));
 		}
+
+		this.getCharMatrix = function(){
+			return ngNode.executeSync(nativeService.getCharMatrix, __$argsToArr.call(arguments));
+		}
 	}
 })();
 

@@ -17,6 +17,7 @@
 		vm.contactList = vm.data["contactList"];
 		vm.user = vm.data["user"];
 		vm.messages = vm.data["messages"] || {};
+		vm.LED_array = {};
 
 
 		vm.repeatRobot = {}
@@ -41,12 +42,10 @@
 
 		vm.beOrNotToBe = beOrNotToBe;
 
-		vm.generateLED = generateLED;
+		vm.sendLED = sendLED;
 
 
 		function generateLED(content){
-
-			var start = new Date();
 
 			var leds = []
 			for (var i = 0; i < content.length; i++) {
@@ -58,7 +57,7 @@
 				for (var h = 0; h < charMatrix.height; h++) {
 					for (var w = 0; w < charMatrix.width; w++) {
 						if(charMatrix.map[[h, w]]){
-							str += "[呲牙]";
+							str += "[福]";
 						}else{
 							str += "     ";
 						}
@@ -68,22 +67,28 @@
 				leds.push(str);
 			}
 
+			return leds;
+			// sendMessage(str, vm.user["UserName"], function(){
+					
+			// 	});
+		}
+
+		function sendLED(content, target){
+
+			var leds = generateLED(content);
+
 			function sendMessageInOrder(i){
 				if(leds[i]){
-					sendMessage(leds[i], vm.user["UserName"], function(){
+					sendMessage(leds[i], target, function(){
 						return sendMessageInOrder(i + 1);
 					});
 				} else {
 					var now = new Date();
-					console.log(now-start)
 					return;
 				}
 			}
 
 			sendMessageInOrder(0);
-			// sendMessage(str, vm.user["UserName"], function(){
-					
-			// 	});
 		}
 	
 
@@ -91,6 +96,7 @@
 			WxService.syncWx(function(data){
 				var data = JSON.parse(data);
 				angular.forEach(data["AddMsgList"], function(obj){
+					console.log(obj)
 					var src = obj["FromUserName"];
 					if(vm.repeatRobot[src]){
 						sendMessage(obj["Content"], src);

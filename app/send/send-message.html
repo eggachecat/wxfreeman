@@ -1,4 +1,4 @@
-<md-toolbar class="light-blue md-table-toolbar">
+<md-toolbar class="light-blue md-table-toolbar" style="position: fixed;">
   <div class="md-toolbar-tools">
     <!-- <md-button class="md-raised" ng-click="goBack()">back</md-button> -->
 
@@ -6,16 +6,17 @@
     <md-button class="md-raised" ng-click="smViewModel.saveContactList()">保存联系列表</md-button>
     <md-button class="md-raised" ng-click="smViewModel.loadMessages()">导入留言</md-button>
     <md-button class="md-raised" ng-click="smViewModel.saveMessages()">保存留言</md-button>
-    <md-button class="md-raised" ng-click="smViewModel.addMessagesToAll($event)">格式化留言</md-button>
+    <md-button class="md-raised" ng-click="smViewModel.addMessagesToAllDialog($event)">格式化留言</md-button>
     <md-button class="md-raised" ng-click="smViewModel.beOrNotToBe()">
       <span ng-hide="smViewModel.alive.alive">保持在线</span>
       <span ng-show="smViewModel.alive.alive">停止自嗨</span>
     </md-button>
-    <span flex></span>
-    <input type="text" name="" value="" placeholder="" ng-model="keyword">
-    <md-button class="md-success" ng-click="smViewModel.search()">
-      搜尋
+
+     <md-button class="md-success" ng-click="smViewModel.search()">
+      通缉犯：
      </md-button>
+    <input type="text" name="" value="" placeholder="" ng-model="keyword">
+   
   </div>
 </md-toolbar>
  
@@ -24,7 +25,7 @@
 <button ng-click="sendAllMessage()">send all messages</button>
 <button  ng-click="save()">save</button> -->
 
-<md-content layout-padding>
+<md-content style="margin-top: 64px;" layout-padding>
 
   <!--  <md-input-container md-no-float class="md-block">
       <input ng-model="ledCharacter" placeholder="ledCharacter">
@@ -52,6 +53,7 @@
       <md-list-item>
         <img ng-src="data:img/jpg;base64,{{contact.src}}" class="md-avatar" />
         <p>{{contact.RemarkName}} ({{contact.NickName}})</p>
+        <md-button class="md-primary" ng-click="smViewModel.changeRemarkNameDialog($event, contact)">改备注</md-button>
         <md-button class="md-primary" ng-click="smViewModel.getHeaderImage(contact)">偷窥</md-button>
         <md-switch class="md-secondary" ng-model="smViewModel.repeatRobot[contact.UserName]"> 学舌脑</md-switch>       
         <md-switch class="md-secondary" ng-model="smViewModel.inverseRobot[contact.UserName]"> 反话脑 </md-switch>

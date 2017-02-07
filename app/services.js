@@ -132,6 +132,10 @@ var __$argsToArr = Array.prototype.slice;
 			return ngNode.execute(wxApp.getHeaderImage, __$argsToArr.call(arguments));
 		}
 
+		this.changeRemarkName = function(){
+			return ngNode.execute(wxApp.changeRemarkName, __$argsToArr.call(arguments));
+		}
+
 	    this.getInfo = function(callback) {
 	        getContact()
 	            .then(function(contactList) {

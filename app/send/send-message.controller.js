@@ -29,7 +29,7 @@
 
 		vm.sendMessage = sendMessage;
 		vm.sendAllMessage = sendAllMessage;
-		vm.addMessagesToAll = addMessagesToAll;
+		vm.addMessagesToAllDialog = addMessagesToAllDialog;
 
 		vm.saveContactList = saveContactList;
 
@@ -44,6 +44,37 @@
 
 		vm.sendLED = sendLED;
 
+		vm.changeRemarkNameDialog = changeRemarkNameDialog;
+
+		function changeRemarkNameDialog(ev, user){
+
+			var remarkName = user.RemarkName;
+			var confirm = $mdDialog.prompt()
+		      	.title('新备注')
+				.textContent('{{R}} -> RemarkName 或者 {{N}} -> NickName')
+		      	.placeholder('Nick Name')
+		      	.ariaLabel('新备注')
+		    	.initialValue(remarkName)
+		      	.targetEvent(ev)
+		      	.ok('确认')
+		      	.cancel('取消');
+
+		    $mdDialog.show(confirm).then(function(remarkName) {
+				changeRemarkName(remarkName, user);
+		    }, function() {
+		      console.log("canceled")
+		    });
+		}
+
+		function changeRemarkName(remarkName, user){
+			WxService.changeRemarkName(remarkName, user.UserName, function(res){
+				if(res.BaseResponse.Ret == 0){
+					$scope.$apply(function(){
+						user.RemarkName = remarkName;
+					})
+				}
+			})
+		}
 
 		function generateLED(content){
 
@@ -57,7 +88,7 @@
 				for (var h = 0; h < charMatrix.height; h++) {
 					for (var w = 0; w < charMatrix.width; w++) {
 						if(charMatrix.map[[h, w]]){
-							str += "[福]";
+							str += "[呲牙]";
 						}else{
 							str += "     ";
 						}
@@ -209,7 +240,7 @@
 			})
 		}
 
-		function addMessagesToAll(ev){
+		function addMessagesToAllDialog(ev){
 			 var confirm = $mdDialog.prompt()
 		      .title('标准化信息')
 		      .textContent('{{R}} -> RemarkName 或者 {{N}} -> NickName')
@@ -221,14 +252,14 @@
 
 		    $mdDialog.show(confirm).then(function(result) {
 		    	console.log(result)
-		      addMessages(result || "")
+		      	addMessages(result || "")
 		    }, function() {
 		      console.log("canceled")
 		    });
 		}
 
 
-		function addMessages(content){
+		function addMessagesToAll(content){
 			angular.forEach(vm.contactList, function(contact){
 
 				var value = content.replace("{{R}}", contact.RemarkName || contact.NickName)

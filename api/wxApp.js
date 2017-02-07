@@ -210,8 +210,31 @@ var webwxsync = function(callback) {
     })
 }
 
+var changeRemarkName = function(remarkName, targetName, callback){
+
+    var headers = wxIO.getHeaders()
+    var wxValues = global.wx.values;
+
+    var reqObj = {
+        "options": {
+            "hostname":defaultHost.wx,
+            "path": `/cgi-bin/mmwebwx-bin/webwxoplog`,
+            "method": "POST",
+            "headers": headers
+        },
+        "body": {
+            "BaseRequest": getBaseRequest(),
+            "CmdId": 2,
+            "RemarkName": remarkName,
+            "UserName": targetName
+        }
+    }  
 
 
+     wxRequest.requestData(reqObj, function(data) {
+        callback(JSON.parse(data))
+    })
+}
 
 
 exports.getContact = getContact;
@@ -220,7 +243,7 @@ exports.syncWx = syncWx;
 exports.sendMessage = sendMessage;
 
 exports.getHeaderImage = getHeaderImage;
-
+exports.changeRemarkName = changeRemarkName;
 
 // "/cgi-bin/mmwebwx-bin/synccheck?r=1472815053018&skey=%40crypt_4896113d_68eedb8c9cafb213567ed085ff58523e&sid=kjnNHtUprykXNlTa&uin=779148661&deviceid=e717783176972749&synckey=1_650789635%7C2_650794654%7C3_650794583%7C11_650794619%7C13_650720002%7C201_1472815050%7C203_1472814595%7C1000_1472812382%7C1001_1472812412&_=1472814986071
 // "/cgi-bin/mmwebwx-bin/synccheck?r=1472815707694&skey=%40crypt_4896113d_65e8d1dbf6d9127adb83748e6867350e&sid=WyQK3QhMY9PYzFtA&uin=779148661&deviceid=e445904521497093&synckey=1_650789635%7C2_650794655%7C3_650794583%7C1000_1472812382"

@@ -1,9 +1,8 @@
 var app = require('electron').remote; 
 var dialog = app.dialog;
-var fs = require("fs")
+var fs = require("fs");
 
 var wxIO = require("./wxIO");
-
 
 var opentype = require("./node_modules/opentype.js/dist/opentype");
 
@@ -11,12 +10,13 @@ var global_font = opentype.loadSync(require("path").resolve(__dirname, 'assets/f
 
 function loadOneFile(callback){
 	dialog.showOpenDialog({ 
+    defaultPath: require("path").resolve(__dirname, 'saves'),
     filters: [
       { name: 'json', extensions: ['json'] }
     ]
   }, function (fileName) {
        if (fileName === undefined){
-            console.log("You didn't save the file");
+            console.log("Failed to load any file");
             return;
        }
        console.log(fileName)
@@ -26,10 +26,12 @@ function loadOneFile(callback){
 
 function saveToFile(content){
 
-	dialog.showSaveDialog(function (fileName) {
+	dialog.showSaveDialog({
+     defaultPath: require("path").resolve(__dirname, `saves/${Number(new Date())}.json`),
+  }, function (fileName) {
 
        if (fileName === undefined){
-            console.log("You didn't save the file");
+            console.log("Failed to save the file");
             return;
        }
 

@@ -178,3 +178,161 @@ var __$argsToArr = Array.prototype.slice;
 	}
 })();
 
+(function(){
+
+	angular
+		.module("wxfreeman")
+		.service("SendService", SendService);
+
+	SendService.$inject = ['WxService', '$q', 'NativeService', '$timeout'];
+
+	function SendService(WxService, $q, NativeService, $timeout){
+
+
+
+		this.sendText = sendText;
+		this.sendLed = sendLed;
+		this.prepareToSend = prepareToSend;
+		this.sendToAll = sendToAll;
+
+
+		function generateLed(led_item){
+
+			var leds = [];
+			var content = led_item.content;
+			var symbol = led_item.symbol || "[呲牙]";
+			for (var i = 0; i < content.length; i++) {
+
+				var char = content[i];
+				var charMatrix = NativeService.getCharMatrix(char);
+
+				var str = "";
+				for (var h = 0; h < charMatrix.height; h++) {
+					for (var w = 0; w < charMatrix.width; w++) {
+						if(charMatrix.map[[h, w]]){
+							str += symbol;
+						}else{
+							str += "     ";
+						}
+					}
+					str += "\n";
+				}
+				leds.push(str);
+			}
+
+			return leds;
+		}
+
+
+
+		function sendInOrder(sendFunc, content_queue, target, index){
+
+			index = index || 0;
+			var content = content_queue[index];
+
+			if(content){
+				sendFunc(content, target, function(){
+					return sendInOrder(sendFunc, content_queue, target, index + 1);
+				}, function(){
+					console.log("Error occurred when send to [", target, "] with content [", content, "]");
+					return ;
+				})
+			} else {
+				return;
+			}
+		}
+
+		function prepareToSend(content_queue, contact_queue, connect_key, target_key, content_sub_key){
+
+			var sendObjArr = [];
+
+			angular.forEach(contact_queue, function(contact){
+
+				var index = contact[connect_key];
+				var content = content_queue[index];
+				var target = contact[target_key];
+
+				if(content && target){
+
+					var has_real_content = true;
+					if(content_sub_key){
+						if(!content[content_sub_key]){
+							has_real_content = false;
+						}
+					}
+
+					if(has_real_content){
+						sendObjArr.push({
+							"content": content,
+							"target": target
+						})
+					}
+				}
+			}) 
+
+			return sendObjArr;
+		}
+		/*
+			@paramters
+				index: the key that conmnect content_queue to target_queue
+		*/
+
+		function sendToAll(sendFunc, sendObjArr, time_step){
+
+
+			time_step = time_step || 100;
+			
+			var timePoint = 0;
+
+			angular.forEach(sendObjArr, function(obj){
+
+			
+				var content = obj.content;
+				var target = obj.target;
+
+				if(content && target){
+
+					$timeout(function(_c, _t){
+						sendFunc(_c, _t);
+					}, timePoint, true, content, target);
+
+					timePoint += time_step;
+				}
+			})
+		}
+
+		function sendText(msg, target, onSuccess, onFailed){
+			WxService
+				.sendMessage(msg, target)
+				.then(function(ret){
+					
+					var err = !! JSON.parse(ret).BaseResponse.Ret;
+					if(err){
+						console.log("Failed to send to [", target, "] with text [", msg, "] !!!!");
+						if(onFailed){
+							onFailed();
+						}
+					}else{
+						console.log("Managed to send to [", target, "] with text [", msg, "] !!!!");
+						if(onSuccess){
+							onSuccess();
+						}
+					}
+
+				})
+		}
+
+		function sendLed(led_item, target){
+
+
+			if(!led_item.content){
+				console.log("empty content");
+				return;
+			}
+
+			var led_queue = generateLed(led_item);
+			return sendInOrder(sendText, led_queue, target);
+		}
+
+	}
+})();

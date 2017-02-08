@@ -3,9 +3,9 @@
 		.module("wxfreeman")
 		.controller('SendMessageCtrl', SendMessageCtrl);
 
-	SendMessageCtrl.$inject = ['$scope', '$state', 'DataService', 'WxService', 'NativeService', '$mdDialog', '$interval', '$timeout'];
+	SendMessageCtrl.$inject = ['$scope', '$state', 'DataService', 'WxService', 'NativeService', '$mdDialog', '$interval', '$timeout', 'SendService'];
 
-	function SendMessageCtrl($scope, $state, DataService, WxService, NativeService, $mdDialog, $interval, $timeout){
+	function SendMessageCtrl($scope, $state, DataService, WxService, NativeService, $mdDialog, $interval, $timeout, SendService){
 
 
 		var vm = this;
@@ -16,8 +16,8 @@
 		
 		vm.contactList = vm.data["contactList"];
 		vm.user = vm.data["user"];
-		vm.messages = vm.data["messages"] || {};
-		vm.LED_array = {};
+		vm.text_array = vm.data["text_array"] || {};
+		vm.led_array = {};
 
 
 		vm.repeatRobot = {}
@@ -25,11 +25,17 @@
 
 
 //methods
+
+		var sendLed = vm.sendLed = SendService.sendLed;
+		var sendText = vm.sendText = SendService.sendText;
+
+
 		vm.goBack = goBack;
 
-		vm.sendMessage = sendMessage;
-		vm.sendAllMessage = sendAllMessage;
-		vm.addMessagesToAllDialog = addMessagesToAllDialog;
+		vm.sendAllText = sendAllText;
+		vm.sendAllLed = sendAllLed;
+
+		vm.addTextToAllDialog = addTextToAllDialog;
 
 		vm.saveContactList = saveContactList;
 
@@ -42,16 +48,28 @@
 
 		vm.beOrNotToBe = beOrNotToBe;
 
-		vm.sendLED = sendLED;
 
 		vm.changeRemarkNameDialog = changeRemarkNameDialog;
+
+
+		function sendAllText(){
+			var sendObjArr = SendService.prepareToSend(vm.text_array, vm.contactList, "NickName", "UserName");
+			console.log(sendObjArr)
+			SendService.sendToAll(sendText, sendObjArr);
+		}
+
+		function sendAllLed(){
+			var sendObjArr = SendService.prepareToSend(vm.led_array, vm.contactList, "NickName", "UserName", "content");
+			console.log(sendObjArr)
+			SendService.sendToAll(sendLed, sendObjArr);
+		}
 
 		function changeRemarkNameDialog(ev, user){
 
 			var remarkName = user.RemarkName;
 			var confirm = $mdDialog.prompt()
 		      	.title('新备注')
-				.textContent('{{R}} -> RemarkName 或者 {{N}} -> NickName')
+				.textContent('填入新备注确认，我在做什么？')
 		      	.placeholder('Nick Name')
 		      	.ariaLabel('新备注')
 		    	.initialValue(remarkName)
@@ -76,52 +94,6 @@
 			})
 		}
 
-		function generateLED(content){
-
-			var leds = []
-			for (var i = 0; i < content.length; i++) {
-
-				var char = content[i];
-				var charMatrix = NativeService.getCharMatrix(char);
-
-				var str = "";
-				for (var h = 0; h < charMatrix.height; h++) {
-					for (var w = 0; w < charMatrix.width; w++) {
-						if(charMatrix.map[[h, w]]){
-							str += "[呲牙]";
-						}else{
-							str += "     ";
-						}
-					}
-					str += "\n";
-				}
-				leds.push(str);
-			}
-
-			return leds;
-			// sendMessage(str, vm.user["UserName"], function(){
-					
-			// 	});
-		}
-
-		function sendLED(content, target){
-
-			var leds = generateLED(content);
-
-			function sendMessageInOrder(i){
-				if(leds[i]){
-					sendMessage(leds[i], target, function(){
-						return sendMessageInOrder(i + 1);
-					});
-				} else {
-					var now = new Date();
-					return;
-				}
-			}
-
-			sendMessageInOrder(0);
-		}
-	
 
 		function syncWechat(){
 			WxService.syncWx(function(data){
@@ -130,10 +102,10 @@
 					console.log(obj)
 					var src = obj["FromUserName"];
 					if(vm.repeatRobot[src]){
-						sendMessage(obj["Content"], src);
+						sendText(obj["Content"], src);
 					}
 					if(vm.inverseRobot[src]){
-						sendMessage(obj["Content"].split("").reverse().join(""), src);
+						sendText(obj["Content"].split("").reverse().join(""), src);
 					}
 				})
 			})
@@ -145,25 +117,7 @@
 			$state.go("login")
 		}
 
-		function sendMessage(msg, target, onSuccess, onFailed){
-			WxService
-				.sendMessage(msg,target)
-				.then(function(ret){
-					
-					var err = !! JSON.parse(ret).BaseResponse.Ret;
-					if(err){
-						if(onFailed){
-							onFailed();
-						}
-					}else{
-						if(onSuccess){
-							onSuccess();
-						}
-					}
-
-				})
-		} 
-
+	
 		function saveContactList(){
 			var fs = require("fs");
 			fs.writeFileSync("contactList.json", JSON.stringify(vm.contactList))
@@ -179,19 +133,29 @@
 			NativeService
 				.loadOneFile()
 				.then(function(data){
-					vm.messages = data;
+					vm.text_array = data.text;
+					vm.led_array = data.led_array;
 				})
 		}
 
+		function mergeContentObjects(obj1, obj2){
+			var obj = {};
+
+			angular.forEach(obj1, function(contact){})
+		}
+
 		function saveMessages(){
-			NativeService.saveToFile(vm.messages)
+			NativeService.saveToFile({
+				"text":	vm.text_array,
+				"led_array": vm.led_array
+			})
 		}
 
 		
 
 		function keepAlive(){
 			var _keepAlive = function(){
-				sendMessage("keep-alive", vm.user["UserName"])
+				sendText("keep-alive", vm.user["UserName"])
 			}
 
 			vm.alive.promise = $interval(_keepAlive, 120000);// two minutes
@@ -224,23 +188,7 @@
 		}
 
 
-		function sendAllMessage(){
-
-			var timePoint = 0;
-			angular.forEach(vm.contactList, function(contact){
-
-				if(msg = vm.messages[contact["NickName"]]){
-
-					$timeout(function(_msg, _target){
-						sendMessage(_msg, _target);
-					}, timePoint, true, msg, contact["UserName"]);
-
-					timePoint += 100;
-				}
-			})
-		}
-
-		function addMessagesToAllDialog(ev){
+		function addTextToAllDialog(ev){
 			 var confirm = $mdDialog.prompt()
 		      .title('标准化信息')
 		      .textContent('{{R}} -> RemarkName 或者 {{N}} -> NickName')
@@ -252,19 +200,19 @@
 
 		    $mdDialog.show(confirm).then(function(result) {
 		    	console.log(result)
-		      	addMessages(result || "")
+		      	addTextToAll(result || "")
 		    }, function() {
 		      console.log("canceled")
 		    });
 		}
 
 
-		function addMessagesToAll(content){
+		function addTextToAll(content){
 			angular.forEach(vm.contactList, function(contact){
 
 				var value = content.replace("{{R}}", contact.RemarkName || contact.NickName)
 									.replace("{{N}}", contact.NickName || contact.RemarkName);
-				vm.messages[contact.NickName] = value;
+				vm.text_array[contact.NickName] = value;
 			})
 		}
 	 

@@ -70,6 +70,8 @@ function getQrcode(callback) {
 
 
 function redirect(status, callback){
+
+	console.log(status)
 	
 	var redirect_uri = scriptParser(status)["redirect_uri"];
 
@@ -77,6 +79,8 @@ function redirect(status, callback){
 
 		var cookies = res.headers["set-cookie"];
 		cookiesParser(cookies)
+
+		console.log(body)
 
         global.wx.values = {
             "ret": body.match(/<ret>(.*)<\/ret>/)[1],

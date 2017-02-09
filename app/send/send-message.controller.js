@@ -210,8 +210,10 @@
 		function addTextToAll(content){
 			angular.forEach(vm.contactList, function(contact){
 
-				var value = content.replace("{{R}}", contact.RemarkName || contact.NickName)
-									.replace("{{N}}", contact.NickName || contact.RemarkName);
+
+
+				var value = content.replace(/\{\{\R\}\}/g, contact.RemarkName || contact.NickName)
+									.replace(/\{\{\N\}\}/g, contact.NickName || contact.RemarkName);
 				vm.text_array[contact.NickName] = value;
 			})
 		}

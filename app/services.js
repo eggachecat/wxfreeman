@@ -121,6 +121,9 @@ var __$argsToArr = Array.prototype.slice;
 		var iniWx = this.iniWx = function(){
 			return ngNode.execute(wxApp.iniWx, __$argsToArr.call(arguments));
 		}
+		this.iniWx_V2 = function(){
+			return ngNode.execute(wxApp.iniWx_V2, __$argsToArr.call(arguments));
+		}
 		this.syncWx = function(){
 			return ngNode.execute(wxApp.syncWx, __$argsToArr.call(arguments));
 		}

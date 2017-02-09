@@ -64,6 +64,34 @@ var iniWx = function(callback){
 
     wxRequest.requestData(reqObj, function(data) {
         var obj = JSON.parse(data)
+        console.log(obj)
+        global.wx.values["user"] = obj["User"];
+        global.wx.values["SyncKey"] = obj["SyncKey"];
+        wxIO.saveConfig();
+        callback(obj);
+    })
+}
+
+
+var iniWx_V2 = function(callback){
+
+    var headers = wxIO.getHeaders() 
+
+    var reqObj = {
+        "options": {
+            "hostname": defaultHost.wx,
+            "path": `/cgi-bin/mmwebwx-bin/webwxinit?r=-${~new Date}`,
+            "method": "POST",
+            "headers": headers
+        },
+        "body": {
+            "BaseRequest": getBaseRequest()
+        }
+    }
+
+    wxRequest.requestData(reqObj, function(data) {
+        var obj = JSON.parse(data)
+        console.log(obj)
         global.wx.values["user"] = obj["User"];
         global.wx.values["SyncKey"] = obj["SyncKey"];
         wxIO.saveConfig();
@@ -239,6 +267,7 @@ var changeRemarkName = function(remarkName, targetName, callback){
 
 exports.getContact = getContact;
 exports.iniWx = iniWx;
+exports.iniWx_V2 = iniWx_V2;
 exports.syncWx = syncWx;
 exports.sendMessage = sendMessage;
 

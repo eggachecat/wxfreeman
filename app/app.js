@@ -54,6 +54,12 @@
 				controller: "SendMessageCtrl",
 				controllerAs: "smViewModel",
 				templateUrl: TEMPLATE_ROOT_DIR + "send/send-message.html"
+		   })
+		    .state('app.manageTask', {
+				url: "/app/manageTask",
+				controller: "ManageTaskCtrl",
+				controllerAs: "mtViewModel",
+				templateUrl: TEMPLATE_ROOT_DIR + "task/manage-task.html"
 		   });
 
 	}

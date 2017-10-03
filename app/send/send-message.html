@@ -8,7 +8,10 @@
     <md-button class="md-raised" ng-click="smViewModel.saveContactList()">保存联系列表</md-button>
     <md-button class="md-raised" ng-click="smViewModel.loadMessages()">导入留言</md-button>
     <md-button class="md-raised" ng-click="smViewModel.saveMessages()">保存留言</md-button>
-    <md-button class="md-raised" ng-click="smViewModel.addTextToAllDialog($event)">格式化留言</md-button>
+    <md-button class="md-raised" ng-click="smViewModel.SetTimingMissionStart()" ng-show="smViewModel.startSetTimingMission">开始设置定时任务</md-button>
+    <md-button class="md-raised" ng-click="smViewModel.SetTimingMissionEnd()" ng-hide="smViewModel.startSetTimingMission">开始设置定时任务</md-button>
+
+      <md-button class="md-raised" ng-click="smViewModel.addTextToAllDialog($event)">格式化留言</md-button>
     <md-button class="md-raised" ng-click="smViewModel.beOrNotToBe()">
       <span ng-hide="smViewModel.alive.alive">保持在线</span>
       <span ng-show="smViewModel.alive.alive">停止自嗨</span>
@@ -27,16 +30,33 @@
 
 
   <md-list>
+  <!-- interval: <input type="text" name="" value="" placeholder="" ng-model="time_interval" ng-init="time_interval = 100;"> -->
+  <!-- id1: <input type="text" name="" value="" placeholder="" ng-model="smViewModel.test_id[0]"> -->
+  <!-- id2: <input type="text" name="" value="" placeholder="" ng-model="smViewModel.test_id[1]"> -->
+<!--   id3: <input type="text" name="" value="" placeholder="" ng-model="smViewModel.test_id[2]">
+  id4: <input type="text" name="" value="" placeholder="" ng-model="smViewModel.test_id[3]"> -->
 
- 
 
-    <div ng-repeat="contact in smViewModel.data['contactList'] | searchFilter: keyword"
+  <!-- times: <input type="text" name="" value="" placeholder="" ng-model="times" ng-init="times = 10;"> -->
+
+  <!-- <md-button class="md-raised" ng-click="smViewModel.test(1, times);">测试</md-button> -->
+
+ <!-- <md-button class="md-raised" ng-click="smViewModel.sendAll(times);">God-Help-Me</md-button> -->
+
+
+  <!-- sendAll -->
+
+    <div ng-repeat="contact in smViewModel.data['contactList'] | searchFilter: keyword | orderBy: 'priority'"
          ng-if="contact.KeyWord != 'gh_'">
 
-      <md-list-item>
+      <md-list-item ng-click="smViewModel.addPriority(contact);">
         <img ng-src="data:img/jpg;base64,{{contact.src}}" class="md-avatar" />
-        <p>{{contact.RemarkName}} ({{contact.NickName}})</p>
+        <p>{{contact.RemarkName}} ({{contact.NickName}}) - {{contact.UserName}}</p>
         <md-button class="md-primary" ng-click="smViewModel.changeRemarkNameDialog($event, contact)">改备注</md-button>
+        <md-button class="md-primary" ng-click="smViewModel.changeChatroomNameDialog($event, contact)">改Topic</md-button>
+        <md-button class="md-primary" ng-click="smViewModel.delayChangeChatroomNameDialog($event, contact, '2017-09-20 00:00:00')">delay-改Topic</md-button>
+
+
         <md-button class="md-primary" ng-click="smViewModel.getHeaderImage(contact)">偷窥</md-button>
         <md-switch class="md-secondary" ng-model="smViewModel.repeatRobot[contact.UserName]"> 学舌脑</md-switch>       
         <md-switch class="md-secondary" ng-model="smViewModel.inverseRobot[contact.UserName]"> 反话脑 </md-switch>
@@ -51,10 +71,12 @@
           </md-input-container>
         </p>
         <md-button class="md-primary" ng-click="smViewModel.sendText(smViewModel.text_array[contact.NickName], contact.UserName)">发送文字信息</md-button>
+        <md-button class="md-primary" ng-click="smViewModel.delaySendText(contact, '2017-09-20 00:00:00')">delay发送文字信息</md-button>
+
       </md-list-item>
 
       <md-list-item class="secondary-button-padding" layout="row" layout-padding>
-          <md-input-container class="md-block no-margin"  flex="10" ng-init="smViewModel.led_array[contact.NickName].symbol = '[呲牙]'">
+          <md-input-container class="md-block no-margin"  flex="10" ">
             <label>led-symbol</label>
             <input ng-model="smViewModel.led_array[contact.NickName].symbol">
           </md-input-container>

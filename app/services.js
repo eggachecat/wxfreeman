@@ -138,7 +138,9 @@ var __$argsToArr = Array.prototype.slice;
 		this.changeRemarkName = function(){
 			return ngNode.execute(wxApp.changeRemarkName, __$argsToArr.call(arguments));
 		}
-
+		this.changeChatroomName = function () {
+            return ngNode.execute(wxApp.changeChatroomName, __$argsToArr.call(arguments));
+        }
 	    this.getInfo = function(callback) {
 	        getContact()
 	            .then(function(contactList) {
@@ -197,6 +199,11 @@ var __$argsToArr = Array.prototype.slice;
 		this.sendLed = sendLed;
 		this.prepareToSend = prepareToSend;
 		this.sendToAll = sendToAll;
+		this.sendAllInOrder = sendAllInOrder;
+		this.sendAllInOrderWithDelay = sendAllInOrderWithDelay;
+
+		this.sendTextWithGap = sendTextWithGap;
+		this.generateLed = generateLed;
 
 
 		function generateLed(led_item){
@@ -226,16 +233,79 @@ var __$argsToArr = Array.prototype.slice;
 			return leds;
 		}
 
+		function sendAllInOrder(sendFunc, sendObjArr, time_step, index){
 
+			index = index || 0;
+			time_step = time_step || 500;
+
+			if(!sendObjArr[index]){
+				return ;
+			}
+
+			var content = sendObjArr[index].content;
+			var target = sendObjArr[index].target;
+
+
+			if(content && content){
+				
+				console.log(sendObjArr)
+
+				sendFunc(content, target, function(){
+					return	sendAllInOrder(sendFunc, sendObjArr, time_step, index + 1);
+				}, function(){
+					console.log("Error occurred when send to [", target, "] with content [", content, "]");
+					return ;
+				})
+
+			} else {
+				return;
+			}
+		}
+
+		function sendAllInOrderWithDelay(sendFunc, sendObjArr, time_step, index){
+
+			index = index || 0;
+			time_step = time_step || 500;
+
+			sendAllInOrder(function(content, target, onSuccess, onFailed){
+				$timeout(function(){
+					sendFunc(content, target, onSuccess, onFailed);
+				}, time_step)
+			}, sendObjArr, time_step, index)
+		
+		}
 
 		function sendInOrder(sendFunc, content_queue, target, index){
 
 			index = index || 0;
 			var content = content_queue[index];
 
+			console.log(content_queue)
+
 			if(content){
 				sendFunc(content, target, function(){
 					return sendInOrder(sendFunc, content_queue, target, index + 1);
+				}, function(){
+					console.log("Error occurred when send to [", target, "] with content [", content, "]");
+					return ;
+				})
+			} else {
+				return;
+			}
+		}
+
+		function sendInOrderWithDelay(sendFunc, content_queue, target, index){
+
+			index = index || 0;
+			var content = content_queue[index];
+
+			console.log(content_queue)
+
+			if(content){
+				sendFunc(content, target, function(){
+					$timeout(function(){
+						return	sendInOrder(sendFunc, content_queue, target, index + 1)
+					}, 1000)
 				}, function(){
 					console.log("Error occurred when send to [", target, "] with content [", content, "]");
 					return ;
@@ -310,22 +380,40 @@ var __$argsToArr = Array.prototype.slice;
 				.then(function(ret){
 					
 					var err = !! JSON.parse(ret).BaseResponse.Ret;
+					console.log(JSON.parse(ret));
 					if(err){
 						console.log("Failed to send to [", target, "] with text [", msg, "] !!!!");
+
 						if(onFailed){
+
 							onFailed();
+							
 						}
 					}else{
 						console.log("Managed to send to [", target, "] with text [", msg, "] !!!!");
 						if(onSuccess){
 							onSuccess();
+
+							// $timeout(function(){
+							// 	onSuccess();
+							// }, 750);
+							// onSuccess();
 						}
 					}
 
 				})
 		}
 
-		function sendLed(led_item, target){
+		function sendTextWithGap(msg, target, onSuccess, onFailed, Gap){
+			Gap = Gap || 500;
+			return sendText(msg, target, function(){
+				$timeout(onSuccess, Gap)
+			}, function(){
+				$timeout(onFailed, Gap)
+			})
+		}
+
+		function sendLed(led_item, target, onSuccess, onFailed){
 
 
 			if(!led_item.content){
@@ -334,7 +422,7 @@ var __$argsToArr = Array.prototype.slice;
 			}
 
 			var led_queue = generateLed(led_item);
-			return sendInOrder(sendText, led_queue, target);
+			return sendInOrder(sendTextWithGap, led_queue, target);
 		}
 
 	}

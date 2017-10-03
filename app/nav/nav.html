@@ -21,7 +21,7 @@
 
 			<md-content layout-padding >
 				<md-list-item ng-repeat="navi in navViewModel.navigation" 
-							  ng-click="navigateTo(navi.state)"  
+							  ng-click="navViewModel.navigateTo(navi.state)"  
 							  restricted="{{navi.restricted}}" 
 							  access="{{navi.access}}"  
 							  class="md-exclude"

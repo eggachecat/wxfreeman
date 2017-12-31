@@ -1,87 +1,95 @@
-(function () {
-    angular
-        .module("wxfreeman")
-        .filter('UserFilter', UserFilter)
-        .filter('GroupFilter', GroupFilter)
-        .controller('SendMessageCtrl', SendMessageCtrl);
-
-    function UserFilter() {
-        return function (contactList) {
-
-            var out = [];
-            for (var i = 0; i < contactList.length; i++) {
-                var contact = contactList[i];
-                if (contact.KeyWord != 'gh_' && contact.UserName.indexOf("@@") < 0 && contact.UserName.indexOf("传输助手") < 0 && contact.UserName.indexOf("微信") < 0) {
-                    out.push(contact)
-                }
-            }
-            return out;
-        };
-    }
-
-    function GroupFilter() {
-
-    }
-
-
-    SendMessageCtrl.$inject = ['$scope', '$state', 'DataService', 'WxService', 'NativeService', '$mdDialog', '$interval', '$timeout', 'SendService', 'UserFilter'];
-    function SendMessageCtrl($scope, $state, DataService, WxService, NativeService, $mdDialog, $interval, $timeout, SendService) {
+angular
+    .module("wxfreeman.message", [])
+    .controller('SendMessageCtrl', function ($scope, $state, $filter, DataService, WxService, NativeService, $mdDialog, $interval, $timeout, SendService) {
 
 
         var vm = this;
 //variables
-        vm.alive = {alive: false};
-
-        vm.data = DataService.get();
-
-        vm.timingMission = {};
-
-        vm.contactList = vm.data["contactList"];
-        vm.user = vm.data["user"];
-        vm.text_array = vm.data["text_array"] || {};
-        vm.led_array = {};
 
 
-        vm.repeatRobot = {};
-        vm.inverseRobot = {};
+        function chunk(arr, size) {
+            var newArr = [];
+            for (var i = 0; i < arr.length; i += size) {
+                newArr.push(arr.slice(i, i + size));
+            }
+            return newArr;
+        }
 
-        var startSetTimingMission = vm.startSetTimingMission = false;
-        var timingMission_array = vm.timingMission_array = {};
+        // function preprocessContactList(contactList) {
+        //     var _contactList = [];
+        //     angular.forEach(contactList, function (k, v) {
+        //         if (!v.hasOwnProperty('priority')) {
+        //             v['priority'] = 0;
+        //         }
+        //         _contactList.push(v);
+        //     })
+        //     console.log(_contactList)
+        //     return _contactList;
+        // }
+
+
+        $scope.keepUser = true;
+
+        $scope.alive = {alive: false};
+
+        $scope.data = DataService.get();
+
+        $scope.timingMission = {};
+
+        $scope.contactList = $scope.data["contactList"];
+
+
+        $scope.user = $scope.data["user"];
+        $scope.text_array = $scope.data["text_array"] || {};
+        $scope.led_array = {};
+        $scope.delay_time = {};
+
+        $scope.repeatRobot = {};
+        $scope.inverseRobot = {};
+        $scope.priority_array = {};
+
+
+        var startSetTimingMission = $scope.startSetTimingMission = false;
+        var timingMission_array = $scope.timingMission_array = {};
 
 //methods
 
-        var sendLed = vm.sendLed = SendService.sendLed;
-        var sendText = vm.sendText = SendService.sendText;
+        var sendLed = $scope.sendLed = SendService.sendLed;
+        var sendText = $scope.sendText = SendService.sendText;
+        
+        $scope.sendTextQuick = function (contact) {
+            sendText($scope.text_array[contact.NickName], contact.UserName);
+            contact.priority = -1
+        };
+
+        $scope.goBack = goBack;
+
+        $scope.sendAllText = sendAllText;
+        $scope.sendAllLed = sendAllLed;
+
+        $scope.addTextToAllDialog = addTextToAllDialog;
+
+        $scope.saveContactList = saveContactList;
+
+        $scope.getHeaderImage = getHeaderImage;
+        $scope.getAllImages = getAllImages;
 
 
-        vm.goBack = goBack;
+        $scope.saveMessages = saveMessages;
+        $scope.loadMessages = loadMessages;
 
-        vm.sendAllText = sendAllText;
-        vm.sendAllLed = sendAllLed;
-
-        vm.addTextToAllDialog = addTextToAllDialog;
-
-        vm.saveContactList = saveContactList;
-
-        vm.getHeaderImage = getHeaderImage;
-        vm.getAllImages = getAllImages;
+        $scope.SetTimingMissionStart = SetTimingMissionStart;
+        $scope.SetTimingMissionEnd = SetTimingMissionEnd;
 
 
-        vm.saveMessages = saveMessages;
-        vm.loadMessages = loadMessages;
-
-        vm.SetTimingMissionStart = SetTimingMissionStart;
-        vm.SetTimingMissionEnd = SetTimingMissionEnd;
+        $scope.beOrNotToBe = beOrNotToBe;
 
 
-        vm.beOrNotToBe = beOrNotToBe;
+        $scope.changeRemarkNameDialog = changeRemarkNameDialog;
+        $scope.changeChatroomNameDialog = changeChatroomNameDialog;
 
-
-        vm.changeRemarkNameDialog = changeRemarkNameDialog;
-        vm.changeChatroomNameDialog = changeChatroomNameDialog;
-
-        vm.test_id = [];
-        vm.test = test;
+        $scope.test_id = [];
+        $scope.test = test;
 
         function test(ctr, times) {
 
@@ -90,7 +98,7 @@
             for (var i = 0; i < times; i++) {
                 testTextArr.push({
                     "content": String(prefix) + '-' + String(i),
-                    "target": vm.test_id[i % ctr]
+                    "target": $scope.test_id[i % ctr]
                 })
             }
 
@@ -101,7 +109,7 @@
                         "content": String(i),
                         "symbol": "[福]"
                     },
-                    "target": vm.test_id[i % ctr]
+                    "target": $scope.test_id[i % ctr]
                 })
             }
 
@@ -115,19 +123,59 @@
 
         }
 
-        vm.delaySendText = function (contact, timeStr) {
+        $scope.isLegalTime = function (timeStr) {
+            try {
+                var date = timeStr.split(" ")[0];
+                var time = timeStr.split(" ")[1];
+
+
+                var year = date.split("-")[0];
+                var month = date.split("-")[1];
+                var day = date.split("-")[2];
+                var hour = time.split(":")[0];
+                var minute = time.split(":")[1];
+                var second = time.split(":")[2];
+
+                if (typeof year === 'undefined' ||
+                    typeof month === 'undefined' ||
+                    typeof day === 'undefined' ||
+                    typeof hour === 'undefined' ||
+                    typeof minute === 'undefined' ||
+                    typeof second === 'undefined'){
+                    return false;
+                }
+
+
+                if (2017 <= parseInt(year, 10)
+                    && 0 <= parseInt(month, 10) <= 12
+                    && 0 <= parseInt(day, 10) <= 30
+                    && 0 <= parseInt(hour, 10) <= 12
+                    && 0 <= parseInt(minute, 10) <= 60
+                    && 0 <= parseInt(second, 10) <= 60) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            }
+            catch (err) {
+                return false;
+            }
+        }
+
+        $scope.delaySendText = function (contact, timeStr) {
             var targetTime = new Date(timeStr);
             _timeout = targetTime - Date.now();
             if (_timeout < 0) {
-                sendText(vm.text_array[contact.NickName], contact.UserName);
+                sendText($scope.text_array[contact.NickName], contact.UserName);
             } else {
                 $timeout(function () {
-                    sendText(vm.text_array[contact.NickName], contact.UserName);
+                    sendText($scope.text_array[contact.NickName], contact.UserName);
                 }, _timeout)
             }
         }
 
-        vm.delayChangeChatroomNameDialog = function (ev, chatroom, timeStr) {
+        $scope.delayChangeChatroomNameDialog = function (ev, chatroom, timeStr) {
 
             var targetTime = new Date(timeStr);
             _timeout = targetTime - Date.now();
@@ -158,18 +206,18 @@
         }
 
 
-        vm.sendAll = sendAll;
+        $scope.sendAll = sendAll;
 
         function sendAll(times) {
 
             var timePoint = 0;
 
-            // var _contactList = vm.contactList;
+            // var _contactList = $scope.contactList;
 
             var _contactList = [];
             for (var i = 0; i < times; i++) {
                 _contactList.push({
-                    "UserName": vm.test_id[0],
+                    "UserName": $scope.test_id[0],
                     "NickName": "瑶瑶"
                 })
             }
@@ -178,8 +226,8 @@
 
                 var _key = contact["NickName"];
 
-                var textItem = vm.text_array[_key];
-                var ledItem = vm.led_array[_key];
+                var textItem = $scope.text_array[_key];
+                var ledItem = $scope.led_array[_key];
                 var target = contact["UserName"];
 
                 $timeout(function (_textItem, _target) {
@@ -196,18 +244,22 @@
             })
         }
 
-        vm.addPriority = function (contact) {
+        $scope.addPriority = function (contact) {
             contact.priority += 1;
-        }
+        };
+
+        $scope.minusPriority = function (contact) {
+            contact.priority -= 1;
+        };
 
         function sendAllText() {
-            var sendObjArr = SendService.prepareToSend(vm.text_array, vm.contactList, "NickName", "UserName");
+            var sendObjArr = SendService.prepareToSend($scope.text_array, $scope.contactList, "NickName", "UserName");
             console.log(sendObjArr)
             // SendService.sendToAll(sendText, sendObjArr);
         }
 
         function sendAllLed() {
-            var sendObjArr = SendService.prepareToSend(vm.led_array, vm.contactList, "NickName", "UserName", "content");
+            var sendObjArr = SendService.prepareToSend($scope.led_array, $scope.contactList, "NickName", "UserName", "content");
             console.log(sendObjArr)
             // SendService.sendToAll(sendLed, sendObjArr);
         }
@@ -280,10 +332,10 @@
                 angular.forEach(data["AddMsgList"], function (obj) {
                     console.log(obj);
                     var src = obj["FromUserName"];
-                    if (vm.repeatRobot[src]) {
+                    if ($scope.repeatRobot[src]) {
                         sendText(obj["Content"], src);
                     }
-                    if (vm.inverseRobot[src]) {
+                    if ($scope.inverseRobot[src]) {
                         sendText(obj["Content"].split("").reverse().join(""), src);
                     }
                 })
@@ -300,7 +352,7 @@
 
         function saveContactList() {
             var fs = require("fs");
-            fs.writeFileSync("contactList.json", JSON.stringify(vm.contactList))
+            fs.writeFileSync("contactList.json", JSON.stringify($scope.contactList))
         }
 
         function getHeaderImage(contact) {
@@ -313,9 +365,42 @@
             NativeService
                 .loadOneFile()
                 .then(function (data) {
-                    vm.text_array = data.text;
-                    vm.led_array = data.led_array;
+                    $scope.text_array = data.text;
+                    $scope.led_array = data.led_array;
                 })
+        }
+
+        function saveMessages() {
+            NativeService.saveToFile({
+                "text": $scope.text_array,
+                "led_array": $scope.led_array
+            })
+        }
+
+        $scope.loadPriority = loadPriority;
+        function loadPriority() {
+            NativeService
+                .loadOneFile()
+                .then(function (data) {
+                    var priority_obj = data.priority_obj;
+                    for (var i = 0; i < $scope.contactList.length; i++) {
+                        $scope.contactList[i].priority = priority_obj[$scope.contactList[i].UserName];
+                    }
+                })
+        }
+
+        $scope.savePriority = savePriority;
+        function savePriority() {
+            var priorityContactList = $filter('priorityFilter')($scope.contactList);
+            var priority_obj = {};
+            for (var i = 0; i < priorityContactList.length; i++) {
+                var contact = priorityContactList[i];
+                priority_obj[contact.UserName] = contact.priority;
+            }
+            console.log(priority_obj)
+            NativeService.saveToFile({
+                "priority_obj": priority_obj
+            })
         }
 
         function mergeContentObjects(obj1, obj2) {
@@ -325,31 +410,26 @@
             })
         }
 
-        function saveMessages() {
-            NativeService.saveToFile({
-                "text": vm.text_array,
-                "led_array": vm.led_array
-            })
-        }
+
 
 
         function keepAlive() {
             var _keepAlive = function () {
-                sendText("keep-alive", vm.user["UserName"])
+                sendText("keep-alive", $scope.user["UserName"])
             }
 
-            vm.alive.promise = $interval(_keepAlive, 120000);// two minutes
-            vm.alive.alive = true;
+            $scope.alive.promise = $interval(_keepAlive, 120000);// two minutes
+            $scope.alive.alive = true;
 
         }
 
         function finishMyLife() {
-            $interval.cancel(vm.alive.promise);
-            vm.alive.alive = false;
+            $interval.cancel($scope.alive.promise);
+            $scope.alive.alive = false;
         }
 
         function beOrNotToBe() {
-            if (!vm.alive.alive) {
+            if (!$scope.alive.alive) {
                 keepAlive();
             } else {
                 finishMyLife();
@@ -358,7 +438,7 @@
 
 
         function getAllImages() {
-            angular.forEach(vm.contactList, function (contact) {
+            angular.forEach($scope.contactList, function (contact) {
                 if (contact.KeyWord != 'gh_') {
                     WxService.getHeaderImage(contact.HeadImgUrl).then(function (base64Image) {
                         contact.src = base64Image;
@@ -406,35 +486,38 @@
 
 
         function addTextToAll(content) {
-            angular.forEach(vm.contactList, function (contact) {
+            angular.forEach($scope.contactList, function (contact) {
                 var value = content.replace(/\{\{\R\}\}/g, contact.RemarkName || contact.NickName)
                     .replace(/\{\{\N\}\}/g, contact.NickName || contact.RemarkName);
-                vm.text_array[contact.NickName] = value;
+                $scope.text_array[contact.NickName] = value;
             })
         }
 
         function addLedToAll(content) {
-            angular.forEach(vm.contactList, function (contact) {
+            angular.forEach($scope.contactList, function (contact) {
                 var value = content.replace(/\{\{\R\}\}/g, contact.RemarkName || contact.NickName)
                     .replace(/\{\{\N\}\}/g, contact.NickName || contact.RemarkName);
-                vm.text_array[contact.NickName] = value;
+                $scope.text_array[contact.NickName] = value;
             })
         }
 
         function SetTimingMissionStart() {
-            vm.startSetTimingMission = true;
+            $scope.startSetTimingMission = true;
             return 0;
         }
 
         function SetTimingMissionEnd() {
-            vm.startSetTimingMission = false;
-            vm.timingMission_array["2333"] = {
-                "text_array": vm.text_array,
-                "led_array": vm.led_array
+            $scope.startSetTimingMission = false;
+            $scope.timingMission_array["2333"] = {
+                "text_array": $scope.text_array,
+                "led_array": $scope.led_array
             }
             return 0;
         }
-    }
-})();
+    });
+
+
+
+
 
 

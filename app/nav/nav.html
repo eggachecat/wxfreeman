@@ -20,14 +20,14 @@
 			</md-toolbar>
 
 			<md-content layout-padding >
-				<md-list-item ng-repeat="navi in navViewModel.navigation" 
-							  ng-click="navViewModel.navigateTo(navi.state)"  
+				<md-list-item ng-repeat="navi in navigation" 
+							  ng-click="navigateTo(navi.state)"  
 							  restricted="{{navi.restricted}}" 
 							  access="{{navi.access}}"  
 							  class="md-exclude"
-							  ng-class="{'menu-selected': navi.state == navViewModel.current}">
+							  ng-class="{'menu-selected': navi.state == current}">
 					<md-icon md-svg-icon="./app/bower_components/ionicons/src/navicon-round.svg"></md-icon>
-					<p>{{navViewModel.stateNameTable[navi.state]}}</p>
+					<p>{{stateNameTable[navi.state]}}</p>
 				</md-list-item>
 				<md-list-item ng-click="logout()">
 					<md-icon md-svg-icon="./app/bower_components/ionicons/src/log-out.svg"></md-icon>

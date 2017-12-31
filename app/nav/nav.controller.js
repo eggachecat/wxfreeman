@@ -1,30 +1,24 @@
-(function(){
+angular
+    .module("wxfreeman.nav", [])
+    .controller('NavCtrl', function ($scope, $state) {
 
-	angular
-		.module("wxfreeman")
-		.controller('NavCtrl', NavCtrl);
+        $scope.navigation = [
+            {state: "app.sendMessage"},
+            {state: "app.manageTask"}
+        ];
 
-	NavCtrl.$inject = ['$scope', '$state'];
+        $scope.stateNameTable = {
+            "app.sendMessage": "群发",
+            "app.manageTask": "管理任务"
+        };
 
-	function NavCtrl($scope, $state){
+        $scope.navigateTo = function (state) {
+            $scope.current = state;
+            $state.go(state);
+        }
 
-		var vm = this;
+        $scope.current = $state.current.name;
+    });
 
-		vm.navigation = [
-			{ state: "app.sendMessage" },
-			{ state: "app.manageTask" }
-		];
 
-		vm.stateNameTable = {
-			"app.sendMessage": "群发",
-			"app.manageTask": "管理任务"
-		};
 
-		vm.navigateTo = function(state){
-			vm.current = state;
-			$state.go(state);
-		}
-
-		vm.current = $state.current.name;
-	}
-})();
